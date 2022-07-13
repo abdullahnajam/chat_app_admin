@@ -9,6 +9,7 @@ import 'package:chat_app_admin/screens/sub_group_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/invited_users_screen.dart';
 import '../screens/users_screen.dart';
 import '../utils/constants.dart';
 
@@ -37,18 +38,41 @@ class _SideMenuState extends State<SideMenu> {
                 child: Image.asset("assets/images/logo.png"),
               ),
 
+              ExpansionTile(
+                collapsedIconColor: Colors.white,
+                collapsedTextColor: Colors.white,
 
-              ListTile(
-                onTap: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => UserScreen()));
-
-                },
                 leading: Icon(Icons.person,color: Colors.white),
                 title: Text(
                   "Users",
                   style: TextStyle(color: Colors.white),
                 ),
+                children: <Widget>[
+                  ListTile(
+                    onTap: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => UserScreen()));
+
+                    },
+                    leading: Icon(Icons.person,color: Colors.white),
+                    title: Text(
+                      "Users",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  ListTile(
+                    onTap: () {
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => InvitedUserScreen()));
+
+                    },
+                    leading: Icon(Icons.person_add_alt_1,color: Colors.white),
+                    title: Text(
+                      "Invited Users",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
+
               ExpansionTile(
                 collapsedIconColor: Colors.white,
                 collapsedTextColor: Colors.white,

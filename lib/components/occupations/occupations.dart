@@ -133,52 +133,7 @@ class _OccupationsState extends State<Occupations> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Occupation Code",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                                  ),
-                                ),
 
-                              ],
-                            ),
                             SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,

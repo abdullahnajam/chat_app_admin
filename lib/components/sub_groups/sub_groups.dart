@@ -483,6 +483,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  readOnly: true,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -512,7 +513,7 @@ class _SubGroupsState extends State<SubGroups> {
                                         width: 0.5,
                                       ),
                                     ),
-                                    hintText: "",
+                                    hintText: "123456",
                                     floatingLabelBehavior: FloatingLabelBehavior.always,
                                   ),
                                 ),
@@ -816,6 +817,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  readOnly: true,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -845,7 +847,7 @@ class _SubGroupsState extends State<SubGroups> {
                                         width: 0.5,
                                       ),
                                     ),
-                                    hintText: "",
+                                    hintText: "123456",
                                     floatingLabelBehavior: FloatingLabelBehavior.always,
                                   ),
                                 ),
@@ -1195,6 +1197,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  readOnly: true,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -1224,7 +1227,7 @@ class _SubGroupsState extends State<SubGroups> {
                                         width: 0.5,
                                       ),
                                     ),
-                                    hintText: "",
+                                    hintText: "123456",
                                     floatingLabelBehavior: FloatingLabelBehavior.always,
                                   ),
                                 ),
