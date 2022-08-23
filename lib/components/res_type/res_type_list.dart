@@ -1,8 +1,12 @@
 import 'dart:html';
 import 'dart:ui' as UI;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../model/attributes_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
 class ResponsibilityTypeList extends StatefulWidget {
@@ -16,8 +20,9 @@ class ResponsibilityTypeList extends StatefulWidget {
 class _ResponsibilityTypeListState extends State<ResponsibilityTypeList> {
 
 
-  Future<void> _showEditDialog() async {
-
+  Future<void> _showEditDialog(AttributeModel model) async {
+    var _nameController=TextEditingController();
+    _nameController.text=model.name;
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
       context: context,
@@ -95,6 +100,7 @@ class _ResponsibilityTypeListState extends State<ResponsibilityTypeList> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -136,7 +142,23 @@ class _ResponsibilityTypeListState extends State<ResponsibilityTypeList> {
                             SizedBox(height: 10,),
                             InkWell(
                               onTap: ()async{
-
+                                if (_formKey.currentState!.validate()){
+                                  final ProgressDialog pr = ProgressDialog(context: context);
+                                  pr.show(max: 100, msg: "Please wait");
+                                  await FirebaseFirestore.instance.collection('res_type').doc(model.id).update({
+                                    "name":_nameController.text,
+                                  }).then((value) {
+                                    pr.close();
+                                    Navigator.pop(context);
+                                  }).onError((error, stackTrace){
+                                    pr.close();
+                                    CoolAlert.show(
+                                      context: context,
+                                      type: CoolAlertType.error,
+                                      text: error.toString(),
+                                    );
+                                  });
+                                }
                               },
                               child: Container(
                                 height: 50,
@@ -174,65 +196,102 @@ class _ResponsibilityTypeListState extends State<ResponsibilityTypeList> {
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
       child: SizedBox(
-          height: MediaQuery.of(context).size.height*0.8,
-          width: MediaQuery.of(context).size.width,
-          child:DataTable2(
-
-            showCheckboxColumn: false,
-            columnSpacing: defaultPadding,
-            minWidth: 600,
-            columns: const [
-
-              DataColumn(
-                label: Text("Code"),
-              ),
-
-              DataColumn(
-                label: Text("Name"),
-              ),
-
-
-              DataColumn(
-                label: Text("Actions"),
-              ),
-
-
-            ],
-            rows:  List<DataRow>.generate(5, (index){
-              return DataRow(
-                  cells: [
-                    DataCell(
-                      Text("123"),
-                    ),
-                    DataCell(
-                      Text("HR"),
-                    ),
-                    DataCell(
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: (){
-                              _showEditDialog();
-                            },
-                            icon: Icon(Icons.edit,color: primaryColor,),
-                          ),
-                          IconButton(
-                            onPressed: (){
-
-                            },
-                            icon: Icon(Icons.delete_forever,color: primaryColor,),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  ]
+        height: MediaQuery.of(context).size.height*0.8,
+        width: MediaQuery.of(context).size.width,
+        child:StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('res_type').orderBy('createdAt',descending: true).snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Text('Something went wrong');
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                margin: EdgeInsets.all(30),
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
               );
-            }),
-          )
+            }
+            if (snapshot.data!.size==0){
+              return Container(
+                width: double.infinity,
+                margin: EdgeInsets.all(20),
+                padding: EdgeInsets.all(80),
+                alignment: Alignment.center,
+                child: Text("No data found"),
+              );
+            }
+            print("size ${snapshot.data!.size}");
+            return  DataTable2(
+
+                showCheckboxColumn: false,
+                columnSpacing: defaultPadding,
+                minWidth: 600,
+                columns: const [
+
+                  DataColumn(
+                    label: Text("Code"),
+                  ),
+
+                  DataColumn(
+                    label: Text("Name"),
+                  ),
+
+
+                  DataColumn(
+                    label: Text("Actions"),
+                  ),
+
+                ],
+                rows:  _buildList(context, snapshot.data!.docs)
+            );
+          },
+        ),
       )
     );
   }
+
+  List<DataRow> _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    return  snapshot.map((data) => _buildListItem(context, data)).toList();
+  }
+
+  DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
+    final model = AttributeModel.fromSnapshot(data);
+    return DataRow(
+        cells: [
+          DataCell(Text(model.code)),
+          DataCell(Text(model.name)),
+
+          DataCell(
+            Row(
+              children: [
+                IconButton(
+                  onPressed: (){
+                    _showEditDialog(model);
+                  },
+                  icon: Icon(Icons.edit,color: primaryColor,),
+                ),
+                IconButton(
+                  onPressed: ()async{
+                    await FirebaseFirestore.instance.collection('res_type').doc(model.id).delete().then((value) {
+                      print("deleted");
+                    }).onError((error, stackTrace){
+
+                      CoolAlert.show(
+                        context: context,
+                        type: CoolAlertType.error,
+                        text: error.toString(),
+                      );
+                    });
+                  },
+                  icon: const Icon(Icons.delete_forever,color: primaryColor,),
+                ),
+              ],
+            ),
+          ),
+
+        ]);
+  }
+
 
 
 

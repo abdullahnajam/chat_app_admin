@@ -40,6 +40,27 @@
   <script src="flutter.js" defer></script>
 </head>
 <body>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+     apiKey: "AIzaSyBZ2QLgt_rmLdrk_oUGlq0dLkELPKRhq7s",
+  authDomain: "chat-app-2ea88.firebaseapp.com",
+  projectId: "chat-app-2ea88",
+  storageBucket: "chat-app-2ea88.appspot.com",
+  messagingSenderId: "943054387069",
+  appId: "1:943054387069:web:cf11c138d6b5f0c064fe14"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js

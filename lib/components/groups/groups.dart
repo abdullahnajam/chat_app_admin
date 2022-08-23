@@ -1,7 +1,10 @@
 import 'dart:html';
 import 'dart:ui' as UI;
 import 'package:chat_app_admin/components/groups/groups_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import '../../utils/constants.dart';
 import '../../utils/header.dart';
 import '../../utils/responsive.dart';
@@ -21,8 +24,9 @@ class _GroupsState extends State<Groups> {
 
   Future<void> _showAddDialog() async {
 
+    var _nameController=TextEditingController();
+    var _codeController=TextEditingController();
 
-    bool imageUploading=false;
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
       context: context,
@@ -100,6 +104,7 @@ class _GroupsState extends State<Groups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -146,6 +151,7 @@ class _GroupsState extends State<Groups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _codeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -187,7 +193,24 @@ class _GroupsState extends State<Groups> {
 
                             InkWell(
                               onTap: ()async{
-
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                await FirebaseFirestore.instance.collection('main_group').add({
+                                  "code":_codeController.text,
+                                  "name":_nameController.text,
+                                  "status":"Active",
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,

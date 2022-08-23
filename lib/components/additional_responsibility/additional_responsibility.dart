@@ -1,7 +1,10 @@
 import 'dart:html';
 import 'dart:ui' as UI;
 import 'package:chat_app_admin/components/groups/groups_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import '../../utils/constants.dart';
 import '../../utils/header.dart';
 import '../../utils/responsive.dart';
@@ -19,7 +22,8 @@ class AdditionalResponsibility extends StatefulWidget {
 class _AdditionalResponsibilityState extends State<AdditionalResponsibility> {
 
   Future<void> _showAddDialog() async {
-
+    var _nameController=TextEditingController();
+    var _typeController=TextEditingController();
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
       context: context,
@@ -97,6 +101,7 @@ class _AdditionalResponsibilityState extends State<AdditionalResponsibility> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -144,6 +149,7 @@ class _AdditionalResponsibilityState extends State<AdditionalResponsibility> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _typeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -183,7 +189,47 @@ class _AdditionalResponsibilityState extends State<AdditionalResponsibility> {
                             SizedBox(height: 10,),
                             InkWell(
                               onTap: ()async{
-
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                int count=0;
+                                await FirebaseFirestore.instance.collection('additional_responsibility')
+                                    .orderBy("codeCount",descending: false)
+                                    .get().then((QuerySnapshot querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                    print("code count ${data['codeCount']}");
+                                    count=data['codeCount'];
+                                  });
+                                });
+                                count+=1;
+                                String subCode="";
+                                if(count.toString().length==1){
+                                  subCode="00${count}";
+                                }
+                                else if(count.toString().length==2){
+                                  subCode="0${count}";
+                                }
+                                else{
+                                  subCode="${count}";
+                                }
+                                await FirebaseFirestore.instance.collection('additional_responsibility').add({
+                                  "code":subCode,
+                                  "codeCount":count,
+                                  "name":_nameController.text,
+                                  "type":_typeController.text,
+                                  "status":"Active",
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,

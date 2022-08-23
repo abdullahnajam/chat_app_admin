@@ -5,7 +5,12 @@ import 'package:chat_app_admin/components/sub_groups/sub_groups2_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups3_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups4_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups_list.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../model/main_group_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/header.dart';
 import '../../utils/responsive.dart';
@@ -25,7 +30,9 @@ class _SubGroupsState extends State<SubGroups> {
 
 
   Future<void> _showAdd1Dialog() async {
-
+    var _nameController=TextEditingController();
+    var _codeController=TextEditingController();
+    var _mainGroupCodeController=TextEditingController();
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -100,16 +107,173 @@ class _SubGroupsState extends State<SubGroups> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Group Code",
+                                  "Main Group Code",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _mainGroupCodeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('main_group')
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _mainGroupCodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _mainGroupCodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -150,6 +314,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -196,6 +361,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _codeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -237,7 +403,25 @@ class _SubGroupsState extends State<SubGroups> {
 
                             InkWell(
                               onTap: ()async{
-
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                await FirebaseFirestore.instance.collection('sub_group1').add({
+                                  "code":"${_codeController.text}",
+                                  "name":_nameController.text,
+                                  "mainGroupCode":_mainGroupCodeController.text,
+                                  "status":"Active",
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,
@@ -266,7 +450,10 @@ class _SubGroupsState extends State<SubGroups> {
     );
   }
   Future<void> _showAdd2Dialog() async {
-
+    var _nameController=TextEditingController();
+    var _codeController=TextEditingController();
+    var _mainGroupCodeController=TextEditingController();
+    var _subGroup1CodeController=TextEditingController();
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -287,7 +474,7 @@ class _SubGroupsState extends State<SubGroups> {
               elevation: 2,
 
               child: Container(
-                height: MediaQuery.of(context).size.height*0.45,
+                height: MediaQuery.of(context).size.height*0.6,
                 width: Responsive.isMobile(context)?MediaQuery.of(context).size.width*0.9:MediaQuery.of(context).size.width*0.7,
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -341,16 +528,174 @@ class _SubGroupsState extends State<SubGroups> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Group Code",
+                                  "Main Group Code",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
+
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  controller: _mainGroupCodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('main_group')
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _mainGroupCodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _mainGroupCodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -398,6 +743,163 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _subGroup1CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup1CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup1CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -437,6 +939,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -473,59 +976,57 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Sub Group 2 Code",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  readOnly: true,
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "123456",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                                  ),
-                                ),
-
-                              ],
-                            ),
                             SizedBox(height: 10,),
 
 
                             InkWell(
                               onTap: ()async{
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                int count=0;
+                                await FirebaseFirestore.instance.collection('sub_group2')
+                                    .where("subGroup1Code",isEqualTo:_subGroup1CodeController.text.trim())
+                                    .where("mainGroupCode",isEqualTo:_mainGroupCodeController.text.trim())
+                                    .orderBy("codeCount",descending: false)
+                                    .get().then((QuerySnapshot querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                    print("code count ${data['codeCount']}");
+                                    count=data['codeCount'];
+                                  });
+                                });
+                                count+=1;
+                                String subCode="";
+                                if(count.toString().length==1){
+                                  subCode="00${count}";
+                                }
+                                else if(count.toString().length==2){
+                                  subCode="0${count}";
+                                }
+                                else{
+                                  subCode="${count}";
+                                }
 
+
+                                await FirebaseFirestore.instance.collection('sub_group2').add({
+                                  "code":"${_subGroup1CodeController.text}-$subCode",
+                                  "name":_nameController.text,
+                                  "mainGroupCode":_mainGroupCodeController.text,
+                                  "subGroup1Code":_subGroup1CodeController.text,
+                                  "status":"Active",
+                                  "codeCount":count,
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,
@@ -555,6 +1056,10 @@ class _SubGroupsState extends State<SubGroups> {
   }
   Future<void> _showAdd3Dialog() async {
 
+    var _nameController=TextEditingController();
+    var _mainGroupCodeController=TextEditingController();
+    var _subGroup1CodeController=TextEditingController();
+    var _subGroup2CodeController=TextEditingController();
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -629,16 +1134,174 @@ class _SubGroupsState extends State<SubGroups> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Group Code",
+                                  "Main Group Code",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
+
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  controller: _mainGroupCodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('main_group')
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _mainGroupCodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _mainGroupCodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -686,6 +1349,163 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _subGroup1CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup1CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup1CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -731,6 +1551,163 @@ class _SubGroupsState extends State<SubGroups> {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  controller: _subGroup2CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup2CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup2CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -778,6 +1755,7 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _nameController,
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -807,59 +1785,58 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Sub Group 3 Code",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  readOnly: true,
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "123456",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                                  ),
-                                ),
 
-                              ],
-                            ),
                             SizedBox(height: 10,),
 
 
                             InkWell(
                               onTap: ()async{
-
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                int count=0;
+                                await FirebaseFirestore.instance.collection('sub_group3')
+                                    .where("subGroup2Code",isEqualTo:_subGroup2CodeController.text.trim())
+                                    .where("subGroup1Code",isEqualTo:_subGroup1CodeController.text.trim())
+                                    .where("mainGroupCode",isEqualTo:_mainGroupCodeController.text.trim())
+                                    .orderBy("codeCount",descending: false)
+                                    .get().then((QuerySnapshot querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                    print("code count ${data['codeCount']}");
+                                    count=data['codeCount'];
+                                  });
+                                });
+                                count+=1;
+                                String subCode="";
+                                if(count.toString().length==1){
+                                  subCode="00${count}";
+                                }
+                                else if(count.toString().length==2){
+                                  subCode="0${count}";
+                                }
+                                else{
+                                  subCode="${count}";
+                                }
+                                await FirebaseFirestore.instance.collection('sub_group3').add({
+                                  "code":'${_subGroup2CodeController.text}-$subCode',
+                                  "name":_nameController.text,
+                                  "mainGroupCode":_mainGroupCodeController.text,
+                                  "subGroup1Code":_subGroup1CodeController.text,
+                                  "subGroup2Code":_subGroup2CodeController.text,
+                                  "status":"Active",
+                                  "codeCount":count,
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,
@@ -889,6 +1866,11 @@ class _SubGroupsState extends State<SubGroups> {
   }
   Future<void> _showAdd4Dialog() async {
 
+    var _nameController=TextEditingController();
+    var _mainGroupCodeController=TextEditingController();
+    var _subGroup1CodeController=TextEditingController();
+    var _subGroup2CodeController=TextEditingController();
+    var _subGroup3CodeController=TextEditingController();
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -909,7 +1891,7 @@ class _SubGroupsState extends State<SubGroups> {
               elevation: 2,
 
               child: Container(
-                height: MediaQuery.of(context).size.height*0.5,
+                height: MediaQuery.of(context).size.height*0.7,
                 width: Responsive.isMobile(context)?MediaQuery.of(context).size.width*0.9:MediaQuery.of(context).size.width*0.7,
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -963,16 +1945,174 @@ class _SubGroupsState extends State<SubGroups> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Group Code",
+                                  "Main Group Code",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
+
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  controller: _mainGroupCodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('main_group')
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _mainGroupCodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _mainGroupCodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -1020,6 +2160,163 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _subGroup1CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup1CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup1CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -1065,6 +2362,163 @@ class _SubGroupsState extends State<SubGroups> {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  controller: _subGroup2CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup2CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup2CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -1112,6 +2566,163 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _subGroup3CodeController,
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('sub_group3').where("subGroup2Code",isEqualTo: _subGroup2CodeController.text)
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _subGroup3CodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('sub_group3').where("subGroup2Code",isEqualTo: _subGroup2CodeController.text).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _subGroup3CodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
+                                  },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -1158,6 +2769,7 @@ class _SubGroupsState extends State<SubGroups> {
                                     }
                                     return null;
                                   },
+                                  controller: _nameController,
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
@@ -1187,59 +2799,63 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Sub Group 4 Code",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  readOnly: true,
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "123456",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                                  ),
-                                ),
 
-                              ],
-                            ),
                             SizedBox(height: 10,),
 
 
                             InkWell(
                               onTap: ()async{
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                int count=0;
+                                await FirebaseFirestore.instance.collection('sub_group4')
+                                    .where("subGroup3Code",isEqualTo:_subGroup3CodeController.text.trim())
+                                    .where("subGroup2Code",isEqualTo:_subGroup2CodeController.text.trim())
+                                    .where("subGroup1Code",isEqualTo:_subGroup1CodeController.text.trim())
+                                    .where("mainGroupCode",isEqualTo:_mainGroupCodeController.text.trim())
+                                    .orderBy("codeCount",descending: false)
+                                    .get().then((QuerySnapshot querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                    print("code count ${data['codeCount']}");
+                                    count=data['codeCount'];
+                                  });
+                                });
+                                print("pre code $count");
+                                count+=1;
+                                print("post code $count");
+                                String subCode="";
+                                if(count.toString().length==1){
+                                  subCode="00${count}";
+                                }
+                                else if(count.toString().length==2){
+                                  subCode="0${count}";
+                                }
+                                else{
+                                  subCode="${count}";
+                                }
+                                await FirebaseFirestore.instance.collection('sub_group4').add({
+                                  "code":'${_subGroup3CodeController.text}-$subCode',
+                                  "name":_nameController.text,
+                                  "mainGroupCode":_mainGroupCodeController.text,
+                                  "subGroup1Code":_subGroup1CodeController.text,
+                                  "subGroup2Code":_subGroup2CodeController.text,
+                                  "subGroup3Code":_subGroup3CodeController.text,
+                                  "status":"Active",
+                                  "codeCount":count,
 
+                                  "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,

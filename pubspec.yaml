@@ -36,6 +36,16 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^2.1.0
   data_table_2: ^2.0.4
+  firebase_core: ^1.14.1
+  cloud_firestore: ^3.1.12
+  sn_progress_dialog: ^1.0.6
+  flutter_typeahead: ^3.2.4
+  firebase_storage: ^10.2.12
+  firebase_auth: ^3.3.14
+  firebase_messaging: ^11.2.13
+  provider: ^6.0.2
+  firebase: ^9.0.1
+  cool_alert: ^1.1.0
 
 dev_dependencies:
   flutter_test:

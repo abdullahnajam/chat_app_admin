@@ -1,8 +1,14 @@
 import 'dart:html';
 import 'dart:ui' as UI;
+import 'package:chat_app_admin/model/sub_group_1_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../model/main_group_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
 class SubGroupList extends StatefulWidget {
@@ -16,8 +22,16 @@ class SubGroupList extends StatefulWidget {
 class _SubGroupListState extends State<SubGroupList> {
 
 
-  Future<void> _showEditDialog() async {
+  Future<void> _showEditDialog(SubGroup1Model editModel) async {
 
+
+    var _nameController=TextEditingController();
+    var _codeController=TextEditingController();
+    var _mainGroupCodeController=TextEditingController();
+
+    _nameController.text=editModel.name;
+    _codeController.text=editModel.code;
+    _mainGroupCodeController.text=editModel.mainGroupCode;
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -92,16 +106,173 @@ class _SubGroupListState extends State<SubGroupList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Group Code",
+                                  "Main Group Code",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _mainGroupCodeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
                                     }
                                     return null;
+                                  },
+                                  readOnly: true,
+                                  onTap: (){
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context){
+                                          return StatefulBuilder(
+                                            builder: (context,setState){
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: const BorderRadius.all(
+                                                    Radius.circular(10.0),
+                                                  ),
+                                                ),
+                                                insetAnimationDuration: const Duration(seconds: 1),
+                                                insetAnimationCurve: Curves.fastOutSlowIn,
+                                                elevation: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width*0.3,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        height: 50,
+                                                        margin: EdgeInsets.all(10),
+                                                        child: TypeAheadField(
+                                                          textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                            decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.all(15),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                ),
+                                                              ),
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors.transparent,
+                                                                    width: 0.5
+                                                                ),
+                                                              ),
+                                                              border: OutlineInputBorder(
+                                                                borderRadius: BorderRadius.circular(7.0),
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                              filled: true,
+                                                              fillColor: Colors.grey[200],
+                                                              hintText: 'Search',
+                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                            ),
+                                                          ),
+                                                          noItemsFoundBuilder: (context) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.error),
+                                                              title: Text("No Group Found"),
+                                                            );
+                                                          },
+                                                          suggestionsCallback: (pattern) async {
+
+                                                            List<MainGroupModel> search=[];
+                                                            await FirebaseFirestore.instance
+                                                                .collection('main_group')
+                                                                .get()
+                                                                .then((QuerySnapshot querySnapshot) {
+                                                              querySnapshot.docs.forEach((doc) {
+                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
+                                                                if ("${model.code}".contains(pattern))
+                                                                  search.add(model);
+                                                              });
+                                                            });
+
+                                                            return search;
+                                                          },
+                                                          itemBuilder: (context, MainGroupModel suggestion) {
+                                                            return ListTile(
+                                                              leading: Icon(Icons.people),
+                                                              title: Text("${suggestion.name}"),
+                                                              subtitle: Text(suggestion.code),
+                                                            );
+                                                          },
+                                                          onSuggestionSelected: (MainGroupModel suggestion) {
+                                                            _mainGroupCodeController.text=suggestion.code;
+                                                            Navigator.pop(context);
+
+                                                          },
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: StreamBuilder<QuerySnapshot>(
+                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                            if (snapshot.hasError) {
+                                                              return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                                              return Center(
+                                                                child: CircularProgressIndicator(),
+                                                              );
+                                                            }
+                                                            if (snapshot.data!.size==0){
+                                                              return Center(
+                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                              );
+
+                                                            }
+
+                                                            return new ListView(
+                                                              shrinkWrap: true,
+                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                return new Padding(
+                                                                  padding: const EdgeInsets.only(top: 15.0),
+                                                                  child: ListTile(
+                                                                    onTap: (){
+                                                                      setState(() {
+                                                                        _mainGroupCodeController.text="${data['code']}";
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    },
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                  ),
+                                                                );
+                                                              }).toList(),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                    );
                                   },
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(15),
@@ -142,6 +313,7 @@ class _SubGroupListState extends State<SubGroupList> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _nameController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -188,6 +360,7 @@ class _SubGroupListState extends State<SubGroupList> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
+                                  controller: _codeController,
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -225,9 +398,27 @@ class _SubGroupListState extends State<SubGroupList> {
                               ],
                             ),
                             SizedBox(height: 10,),
+
+
                             InkWell(
                               onTap: ()async{
-
+                                final ProgressDialog pr = ProgressDialog(context: context);
+                                pr.show(max: 100, msg: "Please wait");
+                                await FirebaseFirestore.instance.collection('sub_group1').doc(editModel.id).update({
+                                  "code":"${_mainGroupCodeController.text}-${_codeController.text}",
+                                  "name":_nameController.text,
+                                  "mainGroupCode":_mainGroupCodeController.text,
+                                }).then((value) {
+                                  pr.close();
+                                  Navigator.pop(context);
+                                }).onError((error, stackTrace){
+                                  pr.close();
+                                  CoolAlert.show(
+                                    context: context,
+                                    type: CoolAlertType.error,
+                                    text: error.toString(),
+                                  );
+                                });
                               },
                               child: Container(
                                 height: 50,
@@ -236,7 +427,7 @@ class _SubGroupListState extends State<SubGroupList> {
                                   color: primaryColor,
                                 ),
                                 alignment: Alignment.center,
-                                child: Text("Update Sub Group 1",style: Theme.of(context).textTheme.button!.apply(color: Colors.white),),
+                                child: Text("Add Sub Group 1",style: Theme.of(context).textTheme.button!.apply(color: Colors.white),),
                               ),
                             )
                           ],
@@ -255,7 +446,7 @@ class _SubGroupListState extends State<SubGroupList> {
       },
     );
   }
-  Future<void> _showSubGroupsDialog() async {
+  Future<void> _showSubGroupsDialog(SubGroup1Model model) async {
 
 
     return showDialog<void>(
@@ -299,7 +490,7 @@ class _SubGroupListState extends State<SubGroupList> {
                             alignment: Alignment.center,
                             child: Container(
                               padding: EdgeInsets.all(10),
-                              child: Text("EDIT GROUP",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
+                              child: Text("VIEW GROUP",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                             ),
                           ),
                           Align(
@@ -356,40 +547,111 @@ class _SubGroupListState extends State<SubGroupList> {
                                 child: TabBarView(children: <Widget>[
 
 
-                                  ListView.builder(
-                                    itemCount: 3,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (BuildContext context,int index){
-                                      return ListTile(
-                                        leading: Icon(Icons.people),
-                                        title: Text("Sub Group # $index"),
-                                      );
-                                    },
-                                  ),
-                                  ListView.builder(
-                                    itemCount: 3,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (BuildContext context,int index){
-                                      return ListTile(
-                                        leading: Icon(Icons.people),
-                                        title: Text("Sub Group # $index"),
-                                      );
-                                    },
-                                  ),
-                                  ListView.builder(
-                                    itemCount: 3,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (BuildContext context,int index){
-                                      return ListTile(
-                                        leading: Icon(Icons.people),
-                                        title: Text("Sub Group # $index"),
-                                      );
-                                    },
-                                  ),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: FirebaseFirestore.instance.collection('sub_group2')
+                                        .where("subGroup1Code",isEqualTo:model.code).snapshots(),
+                                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Text('Something went wrong');
+                                      }
 
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+
+                                      if (snapshot.data!.size==0) {
+                                        return Center(
+                                          child: Text("No Groups"),
+                                        );
+                                      }
+
+                                      return ListView(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                                          MainGroupModel model=MainGroupModel.fromMap(data,document.reference.id);
+                                          return ListTile(
+                                            leading: Icon(Icons.people),
+                                            title: Text(model.name),
+                                            subtitle: Text(model.code),
+                                          );
+                                        }).toList(),
+                                      );
+                                    },
+                                  ),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: FirebaseFirestore.instance.collection('sub_group3')
+                                        .where("subGroup1Code",isEqualTo:model.code).snapshots(),
+                                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Text('Something went wrong');
+                                      }
+
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+
+                                      if (snapshot.data!.size==0) {
+                                        return Center(
+                                          child: Text("No Groups"),
+                                        );
+                                      }
+
+                                      return ListView(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                                          MainGroupModel model=MainGroupModel.fromMap(data,document.reference.id);
+                                          return ListTile(
+                                            leading: Icon(Icons.people),
+                                            title: Text(model.name),
+                                            subtitle: Text(model.code),
+                                          );
+                                        }).toList(),
+                                      );
+                                    },
+                                  ),
+                                  StreamBuilder<QuerySnapshot>(
+                                    stream: FirebaseFirestore.instance.collection('sub_group4')
+                                        .where("subGroup1Code",isEqualTo:model.code).snapshots(),
+                                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Text('Something went wrong');
+                                      }
+
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+
+                                      if (snapshot.data!.size==0) {
+                                        return Center(
+                                          child: Text("No Groups"),
+                                        );
+                                      }
+
+                                      return ListView(
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                                          MainGroupModel model=MainGroupModel.fromMap(data,document.reference.id);
+                                          return ListTile(
+                                            leading: Icon(Icons.people),
+                                            title: Text(model.name),
+                                            subtitle: Text(model.code),
+                                          );
+                                        }).toList(),
+                                      );
+                                    },
+                                  ),
 
 
                                 ]),
@@ -423,79 +685,111 @@ class _SubGroupListState extends State<SubGroupList> {
       child: SizedBox(
           height: MediaQuery.of(context).size.height*0.8,
           width: MediaQuery.of(context).size.width,
-          child:DataTable2(
+          child:StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('sub_group1').orderBy('createdAt',descending: true).snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Text('Something went wrong');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  margin: EdgeInsets.all(30),
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.data!.size==0){
+                return Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(20),
+                  padding: EdgeInsets.all(80),
+                  alignment: Alignment.center,
+                  child: Text("No group found"),
+                );
+              }
+              print("size ${snapshot.data!.size}");
+              return  DataTable2(
 
-            showCheckboxColumn: false,
-            columnSpacing: defaultPadding,
-            minWidth: 600,
-            columns: const [
-              DataColumn(
-                label: Text("Group Code"),
-              ),
-              DataColumn(
-                label: Text("Sub Group Name"),
-              ),
+                showCheckboxColumn: false,
+                columnSpacing: defaultPadding,
+                minWidth: 600,
+                columns: const [
+                  DataColumn(
+                    label: Text("Main Group Code"),
+                  ),
+                  DataColumn(
+                    label: Text("Sub Group Name"),
+                  ),
 
-              DataColumn(
-                label: Text("Sub Group Code"),
-              ),
-              DataColumn(
-                label: Text("Sub Groups"),
-              ),
-              DataColumn(
-                label: Text("Actions"),
-              ),
+                  DataColumn(
+                    label: Text("Sub Group Code"),
+                  ),
+                  DataColumn(
+                    label: Text("Sub Groups"),
+                  ),
+                  DataColumn(
+                    label: Text("Actions"),
+                  ),
 
 
-            ],
-            rows:  List<DataRow>.generate(5, (index){
-              return DataRow(
-                  cells: [
-                    DataCell(
-                      Text("123"),
-                    ),
-                    DataCell(
-                      Text("Sub Group 1 Name"),
-                    ),
-                    DataCell(
-                      Text("123"),
-                    ),
-                    DataCell(
-                        InkWell(
-                          onTap: (){
-                            _showSubGroupsDialog();
-                          },
-                          child: Text("View",),
-                        )
-                    ),
-
-                    DataCell(
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: (){
-                              _showEditDialog();
-                            },
-                            icon: Icon(Icons.edit,color: primaryColor,),
-                          ),
-                          IconButton(
-                            onPressed: (){
-
-                            },
-                            icon: Icon(Icons.delete_forever,color: primaryColor,),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  ]
+                ],
+                rows:  _buildList(context, snapshot.data!.docs)
               );
-            }),
-          )
+            },
+          ),
+
       )
     );
   }
+  List<DataRow> _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    return  snapshot.map((data) => _buildListItem(context, data)).toList();
+  }
 
+  DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
+    final model = SubGroup1Model.fromSnapshot(data);
+    return DataRow(
+        cells: [
+          DataCell(Text(model.mainGroupCode)),
+          DataCell(Text(model.name)),
+          DataCell(Text(model.code)),
+          DataCell(
+              InkWell(
+                onTap: (){
+                  _showSubGroupsDialog(model);
+                },
+                child: Text("View",),
+              )
+          ),
+          DataCell(
+            Row(
+              children: [
+                IconButton(
+                  onPressed: (){
+                    _showEditDialog(model);
+                  },
+                  icon: Icon(Icons.edit,color: primaryColor,),
+                ),
+                IconButton(
+                  onPressed: ()async{
+                    await FirebaseFirestore.instance.collection('sub_group1').doc(model.id).delete().then((value) {
+                      print("deleted");
+                    }).onError((error, stackTrace){
+
+                      CoolAlert.show(
+                        context: context,
+                        type: CoolAlertType.error,
+                        text: error.toString(),
+                      );
+                    });
+                  },
+                  icon: Icon(Icons.delete_forever,color: primaryColor,),
+                ),
+              ],
+            ),
+          ),
+
+        ]);
+  }
 
 
 
