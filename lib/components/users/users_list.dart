@@ -85,6 +85,8 @@ class _UserListState extends State<UserList> {
 
     bool referer=model.refer;
     bool active=model.action;
+    bool additionalResponsibilityRequired=model.additionalResponsibilityRequired;
+    bool expatriates=model.expatriates;
     bool groupCode=model.group;
     bool sub1Representative=model.subGroup1Representative;
     bool sub2Representative=model.subGroup2Representative;
@@ -1878,6 +1880,7 @@ class _UserListState extends State<UserList> {
                               ],
                             ),
                             SizedBox(height: 20,),
+
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2289,412 +2292,881 @@ class _UserListState extends State<UserList> {
                             ),
                             SizedBox(height: 20,),
                             Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Working/Staying Country",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  controller: _countryController,
-                                  readOnly: true,
-                                  onTap: (){
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context){
-                                          return StatefulBuilder(
-                                            builder: (context,setState){
-                                              return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
-                                                    Radius.circular(10.0),
-                                                  ),
-                                                ),
-                                                insetAnimationDuration: const Duration(seconds: 1),
-                                                insetAnimationCurve: Curves.fastOutSlowIn,
-                                                elevation: 2,
-                                                child: Container(
-                                                  padding: EdgeInsets.all(10),
-                                                  width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                        height: 50,
-                                                        margin: EdgeInsets.all(10),
-                                                        child: TypeAheadField(
-                                                          textFieldConfiguration: TextFieldConfiguration(
-
-
-                                                            decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
-                                                              focusedBorder: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                  color: Colors.transparent,
-                                                                ),
-                                                              ),
-                                                              enabledBorder: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                    color: Colors.transparent,
-                                                                    width: 0.5
-                                                                ),
-                                                              ),
-                                                              border: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                  color: Colors.transparent,
-                                                                  width: 0.5,
-                                                                ),
-                                                              ),
-                                                              filled: true,
-                                                              fillColor: Colors.grey[200],
-                                                              hintText: 'Search',
-                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
-                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
-                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                            ),
-                                                          ),
-                                                          noItemsFoundBuilder: (context) {
-                                                            return ListTile(
-                                                              leading: Icon(Icons.error),
-                                                              title: Text("No Data Found"),
-                                                            );
-                                                          },
-                                                          suggestionsCallback: (pattern) async {
-
-                                                            List<AttributeModel> search=[];
-                                                            await FirebaseFirestore.instance
-                                                                .collection('country')
-                                                                .get()
-                                                                .then((QuerySnapshot querySnapshot) {
-                                                              querySnapshot.docs.forEach((doc) {
-                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-                                                                AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
-                                                                  search.add(model);
-                                                              });
-                                                            });
-
-                                                            return search;
-                                                          },
-                                                          itemBuilder: (context, AttributeModel suggestion) {
-                                                            return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
-                                                              subtitle: Text(suggestion.code),
-                                                            );
-                                                          },
-                                                          onSuggestionSelected: (AttributeModel suggestion) {
-                                                            _countryController.text="${suggestion.name}";
-                                                            Navigator.pop(context);
-
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('country').snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
-
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        _countryController.text="${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                    );
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "",
+                                    style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                   ),
-                                ),
+                                  CheckboxListTile(
+                                    value: additionalResponsibilityRequired,
+                                    onChanged: (value){
+                                      setState(() {
+                                        //referer = value!;
+                                      });
+                                    },
+                                    title: Text("Additional Responsibility Required"),
+                                    controlAffinity: ListTileControlAffinity.leading,
+                                  ),
 
-                              ],
+
+                                ]
                             ),
+                            if(additionalResponsibilityRequired)
+                              Column(
+                                  children:[
+                                    SizedBox(height: 20,),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Additional Responsibility",
+                                          style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
+                                        ),
+                                        TextFormField(
+                                          style: TextStyle(color: Colors.black),
+                                          validator: (value) {
+
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter some text';
+                                            }
+                                            return null;
+                                          },
+                                          controller: _addResController,
+                                          readOnly: true,
+                                          onTap: (){
+                                            showDialog(
+                                                context: context,
+                                                builder: (BuildContext context){
+                                                  return StatefulBuilder(
+                                                    builder: (context,setState){
+                                                      return Dialog(
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: const BorderRadius.all(
+                                                            Radius.circular(10.0),
+                                                          ),
+                                                        ),
+                                                        insetAnimationDuration: const Duration(seconds: 1),
+                                                        insetAnimationCurve: Curves.fastOutSlowIn,
+                                                        elevation: 2,
+                                                        child: Container(
+                                                          padding: EdgeInsets.all(10),
+                                                          width: MediaQuery.of(context).size.width*0.3,
+                                                          child: Column(
+                                                            children: [
+                                                              Container(
+                                                                height: 50,
+                                                                margin: EdgeInsets.all(10),
+                                                                child: TypeAheadField(
+                                                                  textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                                    decoration: InputDecoration(
+                                                                      contentPadding: EdgeInsets.all(15),
+                                                                      focusedBorder: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                        ),
+                                                                      ),
+                                                                      enabledBorder: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors.transparent,
+                                                                            width: 0.5
+                                                                        ),
+                                                                      ),
+                                                                      border: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                          width: 0.5,
+                                                                        ),
+                                                                      ),
+                                                                      filled: true,
+                                                                      fillColor: Colors.grey[200],
+                                                                      hintText: 'Search',
+                                                                      // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                                      // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                                    ),
+                                                                  ),
+                                                                  noItemsFoundBuilder: (context) {
+                                                                    return ListTile(
+                                                                      leading: Icon(Icons.error),
+                                                                      title: Text("No Data Found"),
+                                                                    );
+                                                                  },
+                                                                  suggestionsCallback: (pattern) async {
+
+                                                                    List<OccupationModel> search=[];
+                                                                    await FirebaseFirestore.instance
+                                                                        .collection('additional_responsibility')
+                                                                        .get()
+                                                                        .then((QuerySnapshot querySnapshot) {
+                                                                      querySnapshot.docs.forEach((doc) {
+                                                                        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                        OccupationModel model=OccupationModel.fromMap(data, doc.reference.id);
+                                                                        if ("${model.code}".contains(pattern))
+                                                                          search.add(model);
+                                                                      });
+                                                                    });
+
+                                                                    return search;
+                                                                  },
+                                                                  itemBuilder: (context, OccupationModel suggestion) {
+                                                                    return ListTile(
+                                                                      leading: Icon(Icons.people),
+                                                                      title: Text("${suggestion.name}"),
+                                                                      subtitle: Text(suggestion.code),
+                                                                    );
+                                                                  },
+                                                                  onSuggestionSelected: (OccupationModel suggestion) {
+                                                                    _addResController.text="${suggestion.name}";
+                                                                    additionalResponsibilityCode=suggestion.code;
+                                                                    Navigator.pop(context);
+
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                child: StreamBuilder<QuerySnapshot>(
+                                                                  stream: FirebaseFirestore.instance.collection('additional_responsibility').snapshots(),
+                                                                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                    if (snapshot.hasError) {
+                                                                      return Center(
+                                                                        child: Column(
+                                                                          children: [
+                                                                            Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                            Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    }
+
+                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                      return Center(
+                                                                        child: CircularProgressIndicator(),
+                                                                      );
+                                                                    }
+                                                                    if (snapshot.data!.size==0){
+                                                                      return Center(
+                                                                          child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                      );
+
+                                                                    }
+
+                                                                    return new ListView(
+                                                                      shrinkWrap: true,
+                                                                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                        return new Padding(
+                                                                          padding: const EdgeInsets.only(top: 15.0),
+                                                                          child: ListTile(
+                                                                            onTap: (){
+                                                                              setState(() {
+                                                                                additionalResponsibilityCode=data['code'];
+                                                                                _addResController.text="${data['name']}";
+                                                                              });
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                            leading: Icon(Icons.people),
+                                                                            title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                            subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                          ),
+                                                                        );
+                                                                      }).toList(),
+                                                                    );
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                            );
+                                          },
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.all(15),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                color: primaryColor,
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                  color: primaryColor,
+                                                  width: 0.5
+                                              ),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                color: primaryColor,
+                                                width: 0.5,
+                                              ),
+                                            ),
+                                            hintText: "",
+                                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                                          ),
+                                        ),
+
+                                      ],
+                                    ),
+                                    SizedBox(height: 20,),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Additional Responsibility Type",
+                                          style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
+                                        ),
+                                        TextFormField(
+                                          style: TextStyle(color: Colors.black),
+                                          validator: (value) {
+
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter some text';
+                                            }
+                                            return null;
+                                          },
+                                          controller: _resTypeController,
+                                          readOnly: true,
+                                          onTap: (){
+                                            showDialog(
+                                                context: context,
+                                                builder: (BuildContext context){
+                                                  return StatefulBuilder(
+                                                    builder: (context,setState){
+                                                      return Dialog(
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: const BorderRadius.all(
+                                                            Radius.circular(10.0),
+                                                          ),
+                                                        ),
+                                                        insetAnimationDuration: const Duration(seconds: 1),
+                                                        insetAnimationCurve: Curves.fastOutSlowIn,
+                                                        elevation: 2,
+                                                        child: Container(
+                                                          padding: EdgeInsets.all(10),
+                                                          width: MediaQuery.of(context).size.width*0.3,
+                                                          child: Column(
+                                                            children: [
+                                                              Container(
+                                                                height: 50,
+                                                                margin: EdgeInsets.all(10),
+                                                                child: TypeAheadField(
+                                                                  textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                                    decoration: InputDecoration(
+                                                                      contentPadding: EdgeInsets.all(15),
+                                                                      focusedBorder: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                        ),
+                                                                      ),
+                                                                      enabledBorder: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors.transparent,
+                                                                            width: 0.5
+                                                                        ),
+                                                                      ),
+                                                                      border: OutlineInputBorder(
+                                                                        borderRadius: BorderRadius.circular(7.0),
+                                                                        borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                          width: 0.5,
+                                                                        ),
+                                                                      ),
+                                                                      filled: true,
+                                                                      fillColor: Colors.grey[200],
+                                                                      hintText: 'Search',
+                                                                      // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                                      // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                                    ),
+                                                                  ),
+                                                                  noItemsFoundBuilder: (context) {
+                                                                    return ListTile(
+                                                                      leading: Icon(Icons.error),
+                                                                      title: Text("No Data Found"),
+                                                                    );
+                                                                  },
+                                                                  suggestionsCallback: (pattern) async {
+
+                                                                    List<AttributeModel> search=[];
+                                                                    await FirebaseFirestore.instance
+                                                                        .collection('res_type')
+                                                                        .get()
+                                                                        .then((QuerySnapshot querySnapshot) {
+                                                                      querySnapshot.docs.forEach((doc) {
+                                                                        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                        AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
+                                                                        if ("${model.code}".contains(pattern))
+                                                                          search.add(model);
+                                                                      });
+                                                                    });
+
+                                                                    return search;
+                                                                  },
+                                                                  itemBuilder: (context, AttributeModel suggestion) {
+                                                                    return ListTile(
+                                                                      leading: Icon(Icons.people),
+                                                                      title: Text("${suggestion.name}"),
+                                                                      subtitle: Text(suggestion.code),
+                                                                    );
+                                                                  },
+                                                                  onSuggestionSelected: (AttributeModel suggestion) {
+                                                                    _resTypeController.text="${suggestion.name}";
+                                                                    Navigator.pop(context);
+
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                child: StreamBuilder<QuerySnapshot>(
+                                                                  stream: FirebaseFirestore.instance.collection('res_type').snapshots(),
+                                                                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                    if (snapshot.hasError) {
+                                                                      return Center(
+                                                                        child: Column(
+                                                                          children: [
+                                                                            Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                            Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    }
+
+                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                      return Center(
+                                                                        child: CircularProgressIndicator(),
+                                                                      );
+                                                                    }
+                                                                    if (snapshot.data!.size==0){
+                                                                      return Center(
+                                                                          child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                      );
+
+                                                                    }
+
+                                                                    return new ListView(
+                                                                      shrinkWrap: true,
+                                                                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                        return new Padding(
+                                                                          padding: const EdgeInsets.only(top: 15.0),
+                                                                          child: ListTile(
+                                                                            onTap: (){
+                                                                              setState(() {
+                                                                                _resTypeController.text="${data['name']}";
+                                                                              });
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                            leading: Icon(Icons.people),
+                                                                            title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                            subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                          ),
+                                                                        );
+                                                                      }).toList(),
+                                                                    );
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                }
+                                            );
+                                          },
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.all(15),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                color: primaryColor,
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                  color: primaryColor,
+                                                  width: 0.5
+                                              ),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
+                                              borderSide: BorderSide(
+                                                color: primaryColor,
+                                                width: 0.5,
+                                              ),
+                                            ),
+                                            hintText: "",
+                                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                                          ),
+                                        ),
+
+                                      ],
+                                    ),
+                                  ]
+                              ),
                             SizedBox(height: 20,),
+
+
+
                             Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Working/Staying City",
-                                  style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                ),
-                                TextFormField(
-                                  style: TextStyle(color: Colors.black),
-                                  validator: (value) {
-
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter some text';
-                                    }
-                                    return null;
-                                  },
-                                  controller: _locationController,
-                                  readOnly: true,
-                                  onTap: (){
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context){
-                                          return StatefulBuilder(
-                                            builder: (context,setState){
-                                              return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
-                                                    Radius.circular(10.0),
-                                                  ),
-                                                ),
-                                                insetAnimationDuration: const Duration(seconds: 1),
-                                                insetAnimationCurve: Curves.fastOutSlowIn,
-                                                elevation: 2,
-                                                child: Container(
-                                                  padding: EdgeInsets.all(10),
-                                                  width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                        height: 50,
-                                                        margin: EdgeInsets.all(10),
-                                                        child: TypeAheadField(
-                                                          textFieldConfiguration: TextFieldConfiguration(
-
-
-                                                            decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
-                                                              focusedBorder: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                  color: Colors.transparent,
-                                                                ),
-                                                              ),
-                                                              enabledBorder: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                    color: Colors.transparent,
-                                                                    width: 0.5
-                                                                ),
-                                                              ),
-                                                              border: OutlineInputBorder(
-                                                                borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
-                                                                  color: Colors.transparent,
-                                                                  width: 0.5,
-                                                                ),
-                                                              ),
-                                                              filled: true,
-                                                              fillColor: Colors.grey[200],
-                                                              hintText: 'Search',
-                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
-                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
-                                                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                            ),
-                                                          ),
-                                                          noItemsFoundBuilder: (context) {
-                                                            return ListTile(
-                                                              leading: Icon(Icons.error),
-                                                              title: Text("No Data Found"),
-                                                            );
-                                                          },
-                                                          suggestionsCallback: (pattern) async {
-
-                                                            List<AttributeModel> search=[];
-                                                            await FirebaseFirestore.instance
-                                                                .collection('location')
-                                                                .get()
-                                                                .then((QuerySnapshot querySnapshot) {
-                                                              querySnapshot.docs.forEach((doc) {
-                                                                Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-                                                                AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
-                                                                  search.add(model);
-                                                              });
-                                                            });
-
-                                                            return search;
-                                                          },
-                                                          itemBuilder: (context, AttributeModel suggestion) {
-                                                            return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
-                                                              subtitle: Text(suggestion.code),
-                                                            );
-                                                          },
-                                                          onSuggestionSelected: (AttributeModel suggestion) {
-                                                            _locationController.text="${suggestion.name}";
-                                                            Navigator.pop(context);
-
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('location').snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
-
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        _locationController.text="${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                    );
-                                  },
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                          color: primaryColor,
-                                          width: 0.5
-                                      ),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
-                                        color: primaryColor,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    hintText: "",
-                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "",
+                                    style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                   ),
-                                ),
+                                  CheckboxListTile(
+                                    value: expatriates,
+                                    onChanged: (value){
+                                      setState(() {
+                                        //referer = value!;
+                                      });
+                                    },
+                                    title: Text("Expatriates"),
+                                    controlAffinity: ListTileControlAffinity.leading,
+                                  ),
 
-                              ],
+
+                                ]
                             ),
+                            if(expatriates)
+                              Column(
+                                children: [
+                                  SizedBox(height: 20,),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Working/Staying Country",
+                                        style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
+                                      ),
+                                      TextFormField(
+                                        style: TextStyle(color: Colors.black),
+                                        validator: (value) {
+
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter some text';
+                                          }
+                                          return null;
+                                        },
+                                        controller: _countryController,
+                                        readOnly: true,
+                                        onTap: (){
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context){
+                                                return StatefulBuilder(
+                                                  builder: (context,setState){
+                                                    return Dialog(
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: const BorderRadius.all(
+                                                          Radius.circular(10.0),
+                                                        ),
+                                                      ),
+                                                      insetAnimationDuration: const Duration(seconds: 1),
+                                                      insetAnimationCurve: Curves.fastOutSlowIn,
+                                                      elevation: 2,
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(10),
+                                                        width: MediaQuery.of(context).size.width*0.3,
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              height: 50,
+                                                              margin: EdgeInsets.all(10),
+                                                              child: TypeAheadField(
+                                                                textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                                  decoration: InputDecoration(
+                                                                    contentPadding: EdgeInsets.all(15),
+                                                                    focusedBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                        color: Colors.transparent,
+                                                                      ),
+                                                                    ),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                          width: 0.5
+                                                                      ),
+                                                                    ),
+                                                                    border: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                        color: Colors.transparent,
+                                                                        width: 0.5,
+                                                                      ),
+                                                                    ),
+                                                                    filled: true,
+                                                                    fillColor: Colors.grey[200],
+                                                                    hintText: 'Search',
+                                                                    // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                                    // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                                  ),
+                                                                ),
+                                                                noItemsFoundBuilder: (context) {
+                                                                  return ListTile(
+                                                                    leading: Icon(Icons.error),
+                                                                    title: Text("No Data Found"),
+                                                                  );
+                                                                },
+                                                                suggestionsCallback: (pattern) async {
+
+                                                                  List<AttributeModel> search=[];
+                                                                  await FirebaseFirestore.instance
+                                                                      .collection('country')
+                                                                      .get()
+                                                                      .then((QuerySnapshot querySnapshot) {
+                                                                    querySnapshot.docs.forEach((doc) {
+                                                                      Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                      AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
+                                                                      if ("${model.code}".contains(pattern))
+                                                                        search.add(model);
+                                                                    });
+                                                                  });
+
+                                                                  return search;
+                                                                },
+                                                                itemBuilder: (context, AttributeModel suggestion) {
+                                                                  return ListTile(
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${suggestion.name}"),
+                                                                    subtitle: Text(suggestion.code),
+                                                                  );
+                                                                },
+                                                                onSuggestionSelected: (AttributeModel suggestion) {
+                                                                  _countryController.text="${suggestion.name}";
+                                                                  Navigator.pop(context);
+
+                                                                },
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              child: StreamBuilder<QuerySnapshot>(
+                                                                stream: FirebaseFirestore.instance.collection('country').snapshots(),
+                                                                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                  if (snapshot.hasError) {
+                                                                    return Center(
+                                                                      child: Column(
+                                                                        children: [
+                                                                          Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                          Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                    return Center(
+                                                                      child: CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                  if (snapshot.data!.size==0){
+                                                                    return Center(
+                                                                        child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                    );
+
+                                                                  }
+
+                                                                  return new ListView(
+                                                                    shrinkWrap: true,
+                                                                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                      return new Padding(
+                                                                        padding: const EdgeInsets.only(top: 15.0),
+                                                                        child: ListTile(
+                                                                          onTap: (){
+                                                                            setState(() {
+                                                                              _countryController.text="${data['name']}";
+                                                                            });
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          leading: Icon(Icons.people),
+                                                                          title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                          subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                        ),
+                                                                      );
+                                                                    }).toList(),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                          );
+                                        },
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(15),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                                color: primaryColor,
+                                                width: 0.5
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                              color: primaryColor,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          hintText: "",
+                                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                                        ),
+                                      ),
+
+                                    ],
+                                  ),
+                                  SizedBox(height: 20,),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Working/Staying City",
+                                        style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
+                                      ),
+                                      TextFormField(
+                                        style: TextStyle(color: Colors.black),
+                                        validator: (value) {
+
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter some text';
+                                          }
+                                          return null;
+                                        },
+                                        controller: _locationController,
+                                        readOnly: true,
+                                        onTap: (){
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context){
+                                                return StatefulBuilder(
+                                                  builder: (context,setState){
+                                                    return Dialog(
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: const BorderRadius.all(
+                                                          Radius.circular(10.0),
+                                                        ),
+                                                      ),
+                                                      insetAnimationDuration: const Duration(seconds: 1),
+                                                      insetAnimationCurve: Curves.fastOutSlowIn,
+                                                      elevation: 2,
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(10),
+                                                        width: MediaQuery.of(context).size.width*0.3,
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              height: 50,
+                                                              margin: EdgeInsets.all(10),
+                                                              child: TypeAheadField(
+                                                                textFieldConfiguration: TextFieldConfiguration(
+
+
+                                                                  decoration: InputDecoration(
+                                                                    contentPadding: EdgeInsets.all(15),
+                                                                    focusedBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                        color: Colors.transparent,
+                                                                      ),
+                                                                    ),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                          color: Colors.transparent,
+                                                                          width: 0.5
+                                                                      ),
+                                                                    ),
+                                                                    border: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(7.0),
+                                                                      borderSide: BorderSide(
+                                                                        color: Colors.transparent,
+                                                                        width: 0.5,
+                                                                      ),
+                                                                    ),
+                                                                    filled: true,
+                                                                    fillColor: Colors.grey[200],
+                                                                    hintText: 'Search',
+                                                                    // If  you are using latest version of flutter then lable text and hint text shown like this
+                                                                    // if you r using flutter less then 1.20.* then maybe this is not working properly
+                                                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                                  ),
+                                                                ),
+                                                                noItemsFoundBuilder: (context) {
+                                                                  return ListTile(
+                                                                    leading: Icon(Icons.error),
+                                                                    title: Text("No Data Found"),
+                                                                  );
+                                                                },
+                                                                suggestionsCallback: (pattern) async {
+
+                                                                  List<AttributeModel> search=[];
+                                                                  await FirebaseFirestore.instance
+                                                                      .collection('location')
+                                                                      .get()
+                                                                      .then((QuerySnapshot querySnapshot) {
+                                                                    querySnapshot.docs.forEach((doc) {
+                                                                      Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                                                      AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
+                                                                      if ("${model.code}".contains(pattern))
+                                                                        search.add(model);
+                                                                    });
+                                                                  });
+
+                                                                  return search;
+                                                                },
+                                                                itemBuilder: (context, AttributeModel suggestion) {
+                                                                  return ListTile(
+                                                                    leading: Icon(Icons.people),
+                                                                    title: Text("${suggestion.name}"),
+                                                                    subtitle: Text(suggestion.code),
+                                                                  );
+                                                                },
+                                                                onSuggestionSelected: (AttributeModel suggestion) {
+                                                                  _locationController.text="${suggestion.name}";
+                                                                  Navigator.pop(context);
+
+                                                                },
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              child: StreamBuilder<QuerySnapshot>(
+                                                                stream: FirebaseFirestore.instance.collection('location').snapshots(),
+                                                                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                  if (snapshot.hasError) {
+                                                                    return Center(
+                                                                      child: Column(
+                                                                        children: [
+                                                                          Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                          Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                    return Center(
+                                                                      child: CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                  if (snapshot.data!.size==0){
+                                                                    return Center(
+                                                                        child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                    );
+
+                                                                  }
+
+                                                                  return new ListView(
+                                                                    shrinkWrap: true,
+                                                                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                      return new Padding(
+                                                                        padding: const EdgeInsets.only(top: 15.0),
+                                                                        child: ListTile(
+                                                                          onTap: (){
+                                                                            setState(() {
+                                                                              _locationController.text="${data['name']}";
+                                                                            });
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          leading: Icon(Icons.people),
+                                                                          title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
+                                                                          subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                        ),
+                                                                      );
+                                                                    }).toList(),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              }
+                                          );
+                                        },
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(15),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                                color: primaryColor,
+                                                width: 0.5
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(7.0),
+                                            borderSide: BorderSide(
+                                              color: primaryColor,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          hintText: "",
+                                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                                        ),
+                                      ),
+
+                                    ],
+                                  ),
+                                ],
+                              ),
                             SizedBox(height: 20,),
                             Row(
                               children: [
@@ -3007,6 +3479,8 @@ class _UserListState extends State<UserList> {
                                     "group":groupCode,
                                     "action":active,
                                     "refer":referer,
+                                    "expatriates":expatriates,
+                                    "additionalResponsibilityRequired":additionalResponsibilityRequired,
                                   }).then((value) {
                                     pr.close();
                                     Navigator.pop(context);
@@ -3145,6 +3619,289 @@ class _UserListState extends State<UserList> {
       },
     );
   }
+
+  Future<void> _showAccessDialog(UserModel model) async {
+    bool country_main=model.country_main;
+    bool country_sub1=model.country_sub1;
+    bool country_sub2=model.country_sub2;
+    bool country_sub3=model.country_sub3;
+    bool country_sub4=model.country_sub4;
+    bool country_occupation=model.country_occupation;
+    bool country_restype=model.country_restype;
+    bool city_main=model.city_main;
+    bool city_sub1=model.city_sub1;
+    bool city_sub2=model.city_sub2;
+    bool city_sub3=model.city_sub3;
+    bool city_sub4=model.city_sub4;
+    bool city_occupation=model.city_occupation;
+    bool city_restype=model.city_restype;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context,setState){
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              insetAnimationDuration: const Duration(seconds: 1),
+              insetAnimationCurve: Curves.fastOutSlowIn,
+              elevation: 2,
+
+              child: Container(
+                height: MediaQuery.of(context).size.height*0.7,
+                width: Responsive.isMobile(context)?MediaQuery.of(context).size.width*0.7:MediaQuery.of(context).size.width*0.3,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10)
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          )
+                      ),
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              child: Text("GROUP ACCESS",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                              child: InkWell(
+                                child: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(Icons.close,color: primaryColor,size: 20,),
+                                ),
+                                onTap: ()=>Navigator.pop(context),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                        child: ListView(
+                          children: [
+                            CheckboxListTile(
+                              value: country_main,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_main":value!,
+                                });
+                                setState(() {
+                                  country_main=value;
+                                });
+                              },
+                              title: Text("Resident Country + Main Group"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_sub1,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_sub1":value!,
+                                });
+                                setState(() {
+                                  country_sub1=value;
+                                });
+                              },
+                              title: Text("Resident Country + Sub Group 1"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_sub2,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_sub2":value!,
+                                });
+                                setState(() {
+                                  country_sub2=value;
+                                });
+                              },
+                              title: Text("Resident Country + Sub Group 2"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_sub3,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_sub3":value!,
+                                });
+                                setState(() {
+                                  country_sub3=value;
+                                });
+                              },
+                              title: Text("Resident Country + Sub Group 3"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_sub4,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_sub4":value!,
+                                });
+                                setState(() {
+                                  country_sub4=value;
+                                });
+                              },
+                              title: Text("Resident Country + Sub Group 4"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_occupation,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_occupation":value!,
+                                });
+                                setState(() {
+                                  country_occupation=value;
+                                });
+                              },
+                              title: Text("Resident Country + Occupation"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: country_restype,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "country_restype":value!,
+                                });
+                                setState(() {
+                                  country_restype=value;
+                                });
+                              },
+                              title: Text("Resident Country + Additional Responsibility"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+
+                            //City
+
+                            CheckboxListTile(
+                              value: city_main,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_main":value!,
+                                });
+                                setState(() {
+                                  city_main=value;
+                                });
+                              },
+                              title: Text("Resident City + Main Group"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_sub1,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_sub1":value!,
+                                });
+                                setState(() {
+                                  city_sub1=value;
+                                });
+                              },
+                              title: Text("Resident City + Sub Group 1"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_sub2,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_sub2":value!,
+                                });
+                                setState(() {
+                                  city_sub2=value;
+                                });
+                              },
+                              title: Text("Resident City + Sub Group 2"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_sub3,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_sub3":value!,
+                                });
+                                setState(() {
+                                  city_sub3=value;
+                                });
+                              },
+                              title: Text("Resident City + Sub Group 3"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_sub4,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_sub4":value!,
+                                });
+                                setState(() {
+                                  city_sub4=value;
+                                });
+                              },
+                              title: Text("Resident City + Sub Group 4"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_occupation,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_occupation":value!,
+                                });
+                                setState(() {
+                                  city_occupation=value;
+                                });
+                              },
+                              title: Text("Resident City + Occupation"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+                            CheckboxListTile(
+                              value: city_restype,
+                              onChanged: (bool? value)async{
+                                await FirebaseFirestore.instance.collection('users').doc(model.id).update({
+                                  "city_restype":value!,
+                                });
+                                setState(() {
+                                  city_restype=value;
+                                });
+                              },
+                              title: Text("Resident City + Additional Responsibility"),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            ),
+
+
+                          ],
+                        )
+                    )
+
+
+
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3193,6 +3950,10 @@ class _UserListState extends State<UserList> {
                         label: Text("ID"),
                       ),
                       DataColumn(
+                        label: Text("Group Access"),
+                      ),
+
+                      DataColumn(
                         label: Text("Display Name"),
                       ),
                       DataColumn(
@@ -3227,10 +3988,16 @@ class _UserListState extends State<UserList> {
                         label: Text("Job Description"),
                       ),
                       DataColumn(
+                        label: Text('Additional\nResponsibility\nRequired'),
+                      ),
+                      DataColumn(
                         label: Text("Additional\nResponsibility\nCode"),
                       ),
                       DataColumn(
                         label: Text("Additional\nResponsibility\nType"),
+                      ),
+                      DataColumn(
+                        label: Text("Expatriates"),
                       ),
                       DataColumn(
                         label: Text("Location"),
@@ -3294,6 +4061,14 @@ class _UserListState extends State<UserList> {
             Text(model.id),
           ),
           DataCell(
+              InkWell(
+                onTap: (){
+                  _showAccessDialog(model);
+                },
+                child: Text("Manage",style: TextStyle(color: primaryColor),),
+              )
+          ),
+          DataCell(
             Text(model.displayName),
           ),
           DataCell(
@@ -3327,10 +4102,16 @@ class _UserListState extends State<UserList> {
             Text(model.jobDescription),
           ),
           DataCell(
+            Text(model.additionalResponsibilityRequired?'Yes':'No'),
+          ),
+          DataCell(
             Text(model.additionalResponsibilityCode),
           ),
           DataCell(
             Text(model.additionalResponsibility),
+          ),
+          DataCell(
+            Text(model.expatriates?'Yes':'No'),
           ),
           DataCell(
             Text(model.location),
