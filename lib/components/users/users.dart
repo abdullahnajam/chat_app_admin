@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:intl/intl.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import '../../model/attributes_model.dart';
 import '../../model/main_group_model.dart';
@@ -43,7 +44,6 @@ class _UsersState extends State<Users> {
 
     var _occupationController=TextEditingController();
     var _jobdesController=TextEditingController();
-    var _resTypeController=TextEditingController();
     var _addResController=TextEditingController();
     var _countryController=TextEditingController();
     var _locationController=TextEditingController();
@@ -75,7 +75,8 @@ class _UsersState extends State<Users> {
     bool sub2Representative=false;
     bool sub3Representative=false;
     bool sub4Representative=false;
-
+    const List<String> list = <String>['Male', 'Female'];
+    String dropdownValue = list.first;
 
     final _formKey = GlobalKey<FormState>();
     return showDialog<void>(
@@ -1324,6 +1325,20 @@ class _UsersState extends State<Users> {
                                 ),
                                 TextFormField(
                                     controller: _dobController,
+                                  readOnly: true,
+                                  onTap: ()async{
+                                    final DateTime? picked = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(1960, 1),
+                                        lastDate: DateTime.now());
+                                    if (picked != null) {
+                                      setState(() {
+                                        final f = new DateFormat('dd-MM-yyyy');
+                                        _dobController.text = f.format(picked);
+                                      });
+                                    }
+                                  },
                                   style: TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -2093,210 +2108,7 @@ class _UsersState extends State<Users> {
 
                                       ],
                                     ),
-                                    SizedBox(height: 20,),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Additional Responsibility Type",
-                                          style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                        ),
-                                        TextFormField(
-                                          style: TextStyle(color: Colors.black),
-                                          validator: (value) {
 
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          controller: _resTypeController,
-                                          readOnly: true,
-                                          onTap: (){
-                                            showDialog(
-                                                context: context,
-                                                builder: (BuildContext context){
-                                                  return StatefulBuilder(
-                                                    builder: (context,setState){
-                                                      return Dialog(
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: const BorderRadius.all(
-                                                            Radius.circular(10.0),
-                                                          ),
-                                                        ),
-                                                        insetAnimationDuration: const Duration(seconds: 1),
-                                                        insetAnimationCurve: Curves.fastOutSlowIn,
-                                                        elevation: 2,
-                                                        child: Container(
-                                                          padding: EdgeInsets.all(10),
-                                                          width: MediaQuery.of(context).size.width*0.3,
-                                                          child: Column(
-                                                            children: [
-                                                              Container(
-                                                                height: 50,
-                                                                margin: EdgeInsets.all(10),
-                                                                child: TypeAheadField(
-                                                                  textFieldConfiguration: TextFieldConfiguration(
-
-
-                                                                    decoration: InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(15),
-                                                                      focusedBorder: OutlineInputBorder(
-                                                                        borderRadius: BorderRadius.circular(7.0),
-                                                                        borderSide: BorderSide(
-                                                                          color: Colors.transparent,
-                                                                        ),
-                                                                      ),
-                                                                      enabledBorder: OutlineInputBorder(
-                                                                        borderRadius: BorderRadius.circular(7.0),
-                                                                        borderSide: BorderSide(
-                                                                            color: Colors.transparent,
-                                                                            width: 0.5
-                                                                        ),
-                                                                      ),
-                                                                      border: OutlineInputBorder(
-                                                                        borderRadius: BorderRadius.circular(7.0),
-                                                                        borderSide: BorderSide(
-                                                                          color: Colors.transparent,
-                                                                          width: 0.5,
-                                                                        ),
-                                                                      ),
-                                                                      filled: true,
-                                                                      fillColor: Colors.grey[200],
-                                                                      hintText: 'Search',
-                                                                      // If  you are using latest version of flutter then lable text and hint text shown like this
-                                                                      // if you r using flutter less then 1.20.* then maybe this is not working properly
-                                                                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                                                                    ),
-                                                                  ),
-                                                                  noItemsFoundBuilder: (context) {
-                                                                    return ListTile(
-                                                                      leading: Icon(Icons.error),
-                                                                      title: Text("No Data Found"),
-                                                                    );
-                                                                  },
-                                                                  suggestionsCallback: (pattern) async {
-
-                                                                    List<AttributeModel> search=[];
-                                                                    await FirebaseFirestore.instance
-                                                                        .collection('res_type')
-                                                                        .get()
-                                                                        .then((QuerySnapshot querySnapshot) {
-                                                                      querySnapshot.docs.forEach((doc) {
-                                                                        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-                                                                        AttributeModel model=AttributeModel.fromMap(data, doc.reference.id);
-                                                                        if ("${model.code}".contains(pattern))
-                                                                          search.add(model);
-                                                                      });
-                                                                    });
-
-                                                                    return search;
-                                                                  },
-                                                                  itemBuilder: (context, AttributeModel suggestion) {
-                                                                    return ListTile(
-                                                                      leading: Icon(Icons.people),
-                                                                      title: Text("${suggestion.name}"),
-                                                                      subtitle: Text(suggestion.code),
-                                                                    );
-                                                                  },
-                                                                  onSuggestionSelected: (AttributeModel suggestion) {
-                                                                    _resTypeController.text="${suggestion.name}";
-                                                                    Navigator.pop(context);
-
-                                                                  },
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                child: StreamBuilder<QuerySnapshot>(
-                                                                  stream: FirebaseFirestore.instance.collection('res_type').snapshots(),
-                                                                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                    if (snapshot.hasError) {
-                                                                      return Center(
-                                                                        child: Column(
-                                                                          children: [
-                                                                            Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                            Text("Something Went Wrong",style: TextStyle(color: Colors.black))
-
-                                                                          ],
-                                                                        ),
-                                                                      );
-                                                                    }
-
-                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                      return Center(
-                                                                        child: CircularProgressIndicator(),
-                                                                      );
-                                                                    }
-                                                                    if (snapshot.data!.size==0){
-                                                                      return Center(
-                                                                          child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                                      );
-
-                                                                    }
-
-                                                                    return new ListView(
-                                                                      shrinkWrap: true,
-                                                                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                        return new Padding(
-                                                                          padding: const EdgeInsets.only(top: 15.0),
-                                                                          child: ListTile(
-                                                                            onTap: (){
-                                                                              setState(() {
-                                                                                _resTypeController.text="${data['name']}";
-                                                                              });
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                            leading: Icon(Icons.people),
-                                                                            title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                            subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                          ),
-                                                                        );
-                                                                      }).toList(),
-                                                                    );
-                                                                  },
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                }
-                                            );
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
                                   ]
                               ),
 
@@ -2946,39 +2758,32 @@ class _UsersState extends State<Users> {
                                           "Gender",
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
-                                        TextFormField(
-                                          controller: _genderController,
-                                          style: TextStyle(color: Colors.black),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                              ),
+                                        Container(
+                                          padding: EdgeInsets.only(left: 5,right: 5),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(7),
+                                            border:Border.all(color: primaryColor)
+                                          ),
+                                          child: DropdownButton<String>(
+                                            value: dropdownValue,
+                                            icon: const Icon(Icons.arrow_downward),
+                                            elevation: 16,
+                                            isExpanded: true,
+                                            style: const TextStyle(),
+                                            underline: Container(
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                                            onChanged: (String? value) {
+                                              // This is called when the user selects an item.
+                                              setState(() {
+                                                dropdownValue = value!;
+                                              });
+                                            },
+                                            items: list.map<DropdownMenuItem<String>>((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
 
@@ -3155,10 +2960,13 @@ class _UsersState extends State<Users> {
                               onTap: ()async{
                                 if(_formKey.currentState!.validate()){
                                   if(_passwordController.text==_confirmPasswordController.text){
+                                    if(FirebaseAuth.instance.currentUser!=null){
+                                      await FirebaseAuth.instance.signOut();
+                                    }
                                     final ProgressDialog pr = ProgressDialog(context: context);
-                                    FirebaseApp app = await Firebase.initializeApp(name: 'Secondary', options: Firebase.app().options);
+                                    //FirebaseApp app = await Firebase.initializeApp(name: 'Secondary', options: Firebase.app().options);
                                     pr.show(max: 100, msg: "Please wait");
-                                    await FirebaseAuth.instanceFor(app: app).createUserWithEmailAndPassword(
+                                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
                                         email: _emailController.text.trim(),
                                         password: _passwordController.text
                                     ).then((value){
@@ -3174,10 +2982,9 @@ class _UsersState extends State<Users> {
                                         "mobile":_mobileController.text,
                                         "occupation":_occupationController.text,
                                         "jobDescription":_jobdesController.text,
-                                        "res_type":_resTypeController.text,
                                         "additionalResponsibility":_addResController.text,
                                         "companyName":_companyController.text,
-                                        "gender":_genderController.text,
+                                        "gender":dropdownValue,
                                         "country":_countryController.text,
                                         "additionalResponsibilityCode":additionalResponsibilityCode,
                                         "location":_locationController.text,
@@ -3203,9 +3010,25 @@ class _UsersState extends State<Users> {
                                         "status":"Active",
                                         "createdAt":DateTime.now().millisecondsSinceEpoch,
                                         "token":"",
+                                        "country_main":false,
+                                        "country_sub1":false,
+                                        "country_sub2":false,
+                                        "country_sub3":false,
+                                        "country_sub4":false,
+                                        "country_occupation":false,
+                                        "country_restype":false,
+                                        "city_main":false,
+                                        "city_sub1":false,
+                                        "city_sub2":false,
+                                        "city_sub3":true,
+                                        "city_sub4":true,
+                                        "city_occupation":true,
+                                        "city_restype":true,
+
                                       }).then((value) {
                                         pr.close();
-                                        Navigator.pop(context);
+                                        print('value id');
+                                        //Navigator.pop(context);
                                       }).onError((error, stackTrace){
                                         pr.close();
                                         CoolAlert.show(
@@ -3223,13 +3046,13 @@ class _UsersState extends State<Users> {
                                       );
                                     });
 
-                                    await app.delete();
+                                    //await app.delete();
                                   }
                                   else{
                                     CoolAlert.show(
                                       context: context,
                                       type: CoolAlertType.error,
-                                      text: "Password donot match",
+                                      text: "Password do not match",
                                     );
                                   }
                                 }

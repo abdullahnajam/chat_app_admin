@@ -41,7 +41,7 @@ class UserModel{
         landline = map['landline'],
         occupation = map['occupation'],
         jobDescription = map['jobDescription'],
-        res_type = map['res_type'],
+        res_type = map['res_type']??"",
         additionalResponsibility = map['additionalResponsibility'],
         location = map['location'],
         additionalResponsibilityCode = map['additionalResponsibilityCode'],
