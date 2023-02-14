@@ -7,6 +7,7 @@ const secondaryColor = Color(0xFFFFFFFF);
 const bgColor = Color(0xFFe9e9e9);
 const storageBucketPath='gs://accesfy-882e6.appspot.com';
 
+const List<String> list = <String>['Male', 'Female'];
 
 const defaultPadding = 16.0;
 

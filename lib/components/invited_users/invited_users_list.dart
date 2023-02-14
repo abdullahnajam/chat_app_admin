@@ -28,14 +28,13 @@ class _InvitedUserListState extends State<InvitedUserList> {
     var _nameController=TextEditingController();
     var _emailController=TextEditingController();
     var _mobileController=TextEditingController();
-    var _genderController=TextEditingController();
 
     var _mainGroupCodeController=TextEditingController();
     var _subGroup1CodeController=TextEditingController();
     var _subGroup2CodeController=TextEditingController();
     var _subGroup3CodeController=TextEditingController();
     var _subGroup4CodeController=TextEditingController();
-    var _resTypeController=TextEditingController();
+    //var _resTypeController=TextEditingController();
     var _addResController=TextEditingController();
 
     String mainGroupCode=model.mainGroup;
@@ -43,7 +42,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
     String subGroup2Code=model.subGroup2Code;
     String subGroup3Code=model.subGroup3Code;
     String subGroup4Code=model.subGroup4Code;
-    _resTypeController.text=model.res_type;
+    //_resTypeController.text=model.res_type;
     _addResController.text=model.additionalResponsibility;
 
     bool referer=model.referer;
@@ -51,7 +50,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
     _nameController.text=model.name;
     _emailController.text=model.email;
     _mobileController.text=model.mobile;
-    _genderController.text=model.gender;
+    String dropdownValue=model.gender;
     _mainGroupCodeController.text=model.mainGroup;
     _subGroup1CodeController.text=model.subGroup1;
     _subGroup2CodeController.text=model.subGroup2;
@@ -1317,39 +1316,32 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                           "Gender",
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
-                                        TextFormField(
-                                          controller: _genderController,
-                                          style: TextStyle(color: Colors.black),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                              ),
+                                        Container(
+                                          padding: EdgeInsets.only(left: 5,right: 5),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(7),
+                                              border:Border.all(color: primaryColor)
+                                          ),
+                                          child: DropdownButton<String>(
+                                            value: dropdownValue,
+                                            icon: const Icon(Icons.arrow_downward),
+                                            elevation: 16,
+                                            isExpanded: true,
+                                            style: const TextStyle(),
+                                            underline: Container(
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                                            onChanged: (String? value) {
+                                              // This is called when the user selects an item.
+                                              setState(() {
+                                                dropdownValue = value!;
+                                              });
+                                            },
+                                            items: list.map<DropdownMenuItem<String>>((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
 
@@ -1565,7 +1557,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            /*SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1768,7 +1760,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                 ),
 
                               ],
-                            ),
+                            ),*/
                             SizedBox(height: 30,),
 
                             Column(
@@ -1803,13 +1795,13 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                     "name":_nameController.text,
                                     "email":_emailController.text,
                                     "mobile":_mobileController.text,
-                                    "gender":_genderController.text,
+                                    "gender":dropdownValue,
                                     "referer":referer,
                                     "mainGroupCode":mainGroupCode,
                                     "subGroup1Code":subGroup1Code,
                                     "subGroup2Code":subGroup2Code,
                                     "subGroup3Code":subGroup3Code,
-                                    "res_type":_resTypeController.text,
+                                    //"res_type":_resTypeController.text,
                                     "additionalResponsibility":_addResController.text,
                                     "additionalResponsibilityCode":additionalResponsibilityCode,
                                     "subGroup4Code":subGroup4Code,

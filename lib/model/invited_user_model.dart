@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InvitedUserModel{
   String id,name,email,mobile,gender,invitationCode,mainGroup,mainGroupCode,subGroup1,subGroup1Code,subGroup2Code,subGroup2,
-      subGroup3Code,subGroup3,subGroup4Code,subGroup4,res_type,additionalResponsibility,additionalResponsibilityCode;
+      subGroup3Code,subGroup3,subGroup4Code,subGroup4,additionalResponsibility,additionalResponsibilityCode;
   bool referer;
+  //String res_type;
 
   InvitedUserModel.fromMap(Map<String,dynamic> map,String key)
       : id=key,
@@ -16,7 +17,7 @@ class InvitedUserModel{
         subGroup1 = map['subGroup1'],
         subGroup2 = map['subGroup2'],
         subGroup3 = map['subGroup3'],
-        res_type = map['res_type']??"",
+        //res_type = map['res_type']??"",
         additionalResponsibilityCode = map['additionalResponsibilityCode']??"",
         additionalResponsibility = map['additionalResponsibility']??"",
         subGroup4 = map['subGroup4'],

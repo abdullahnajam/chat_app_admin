@@ -30,14 +30,13 @@ class _InvitedUsersState extends State<InvitedUsers> {
     var _nameController=TextEditingController();
     var _emailController=TextEditingController();
     var _mobileController=TextEditingController();
-    var _genderController=TextEditingController();
 
     var _mainGroupCodeController=TextEditingController();
     var _subGroup1CodeController=TextEditingController();
     var _subGroup2CodeController=TextEditingController();
     var _subGroup3CodeController=TextEditingController();
     var _subGroup4CodeController=TextEditingController();
-    var _resTypeController=TextEditingController();
+    //var _resTypeController=TextEditingController();
     var _addResController=TextEditingController();
     
     String mainGroupCode="";
@@ -47,6 +46,7 @@ class _InvitedUsersState extends State<InvitedUsers> {
     String subGroup4Code="";
     String additionalResponsibilityCode="";
 
+    String dropdownValue = list.first;
 
     bool referer=false;
 
@@ -1841,39 +1841,32 @@ class _InvitedUsersState extends State<InvitedUsers> {
                                           "Gender",
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
-                                        TextFormField(
-                                          controller: _genderController,
-                                          style: TextStyle(color: Colors.black),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                              ),
+                                        Container(
+                                          padding: EdgeInsets.only(left: 5,right: 5),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(7),
+                                              border:Border.all(color: primaryColor)
+                                          ),
+                                          child: DropdownButton<String>(
+                                            value: dropdownValue,
+                                            icon: const Icon(Icons.arrow_downward),
+                                            elevation: 16,
+                                            isExpanded: true,
+                                            style: const TextStyle(),
+                                            underline: Container(
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                                            onChanged: (String? value) {
+                                              // This is called when the user selects an item.
+                                              setState(() {
+                                                dropdownValue = value!;
+                                              });
+                                            },
+                                            items: list.map<DropdownMenuItem<String>>((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
                                           ),
                                         ),
 
@@ -2089,7 +2082,7 @@ class _InvitedUsersState extends State<InvitedUsers> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            /*SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2292,7 +2285,7 @@ class _InvitedUsersState extends State<InvitedUsers> {
                                 ),
 
                               ],
-                            ),
+                            ),*/
 
                             SizedBox(height: 20,),
                             Column(
@@ -2327,11 +2320,11 @@ class _InvitedUsersState extends State<InvitedUsers> {
                                     "name":_nameController.text,
                                     "email":_emailController.text,
                                     "mobile":_mobileController.text,
-                                    "gender":_genderController.text,
+                                    "gender":dropdownValue,
                                     "invitationCode":getRandomString(10),
                                     "referer":referer,
                                     "mainGroupCode":mainGroupCode,
-                                    "res_type":_resTypeController.text,
+                                    //"res_type":_resTypeController.text,
                                     "additionalResponsibility":_addResController.text,
                                     "additionalResponsibilityCode":additionalResponsibilityCode,
                                     "subGroup1Code":subGroup1Code,
