@@ -4,11 +4,13 @@ import 'package:chat_app_admin/screens/group_screen.dart';
 import 'package:chat_app_admin/screens/job_description_screen.dart';
 import 'package:chat_app_admin/screens/location_screen.dart';
 import 'package:chat_app_admin/screens/occupation_screen.dart';
+import 'package:chat_app_admin/screens/report_screen.dart';
 import 'package:chat_app_admin/screens/res_type_screen.dart';
 import 'package:chat_app_admin/screens/sub_group_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/abuse_screen.dart';
 import '../screens/invited_users_screen.dart';
 import '../screens/users_screen.dart';
 import '../utils/constants.dart';
@@ -139,6 +141,28 @@ class _SideMenuState extends State<SideMenu> {
                     ),
                   ),
                 ],
+              ),
+              ListTile(
+                onTap: () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => ReportScreen()));
+
+                },
+                leading: Icon(Icons.assessment,color: Colors.white),
+                title: Text(
+                  "Report",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              ListTile(
+                onTap: () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => AbuseScreen()));
+
+                },
+                leading: Icon(Icons.report,color: Colors.white),
+                title: Text(
+                  "Abuse Reports",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               ListTile(
                 onTap: () {

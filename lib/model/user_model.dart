@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../utils/constants.dart';
+
 class UserModel{
   String id,name,email,mobile,gender,displayName,mainGroup,mainGroupCode,subGroup1,subGroup1Code,subGroup2Code,subGroup2,
       subGroup3Code,subGroup3,subGroup4Code,subGroup4,password,fatherName,dob,landline,companyName,
@@ -20,6 +22,9 @@ class UserModel{
   bool city_sub4;
   bool city_occupation;
   bool city_restype;
+  String referred_by;
+  String profilePicture;
+  String status;
 
 
 
@@ -27,6 +32,9 @@ class UserModel{
   UserModel.fromMap(Map<String,dynamic> map,String key)
       : id=key,
         name = map['name'],
+        profilePicture=map['profilePicture']??profileImage,
+        referred_by = map['referred_by']??'none',
+        status = map['status']??'Active',
         subGroup1Representative = map['subGroup1Representative'],
         subGroup2Representative = map['subGroup2Representative'],
         subGroup3Representative = map['subGroup3Representative'],
