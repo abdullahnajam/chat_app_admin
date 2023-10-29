@@ -1,6 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 import 'dart:ui' as UI;
+import 'package:chat_app_admin/model/sub_group_1_model.dart';
 import 'package:chat_app_admin/model/sub_group_3_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../data/firebase_api.dart';
 import '../../model/main_group_model.dart';
 import '../../model/sub_group_2_model.dart';
 import '../../utils/constants.dart';
@@ -23,6 +25,9 @@ class SubGroup2List extends StatefulWidget {
 
 class _SubGroup2ListState extends State<SubGroup2List> {
 
+  String filter='Main Group Code';
+  String query='';
+  var _controller=TextEditingController();
 
   Future<void> _showEditDialog(SubGroup2Model editModel) async {
 
@@ -832,124 +837,358 @@ class _SubGroup2ListState extends State<SubGroup2List> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        height: MediaQuery.of(context).size.height*0.8,
+        width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
-      child: SizedBox(
-          height: MediaQuery.of(context).size.height*0.8,
-          width: MediaQuery.of(context).size.width,
-          child:StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('sub_group2').orderBy('createdAt',descending: true).snapshots(),
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return Text('Something went wrong');
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  margin: EdgeInsets.all(30),
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.data!.size==0){
-                return Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.all(20),
-                  padding: EdgeInsets.all(80),
-                  alignment: Alignment.center,
-                  child: Text("No group found"),
-                );
-              }
-              print("size ${snapshot.data!.size}");
-              return  DataTable2(
+      child: Column(
+        children: [
+          /*SizedBox(
+              height: MediaQuery.of(context).size.height*0.8,
+              width: MediaQuery.of(context).size.width,
+              child:StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('sub_group2').orderBy('createdAt',descending: true).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Something went wrong');
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                      margin: EdgeInsets.all(30),
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.data!.size==0){
+                    return Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(20),
+                      padding: EdgeInsets.all(80),
+                      alignment: Alignment.center,
+                      child: Text("No group found"),
+                    );
+                  }
+                  print("size ${snapshot.data!.size}");
+                  return  DataTable2(
 
-                showCheckboxColumn: false,
-                columnSpacing: defaultPadding,
-                minWidth: 600,
-                columns: const [
-                  DataColumn(
-                    label: Text("Main Group Code"),
-                  ),
-                  DataColumn(
-                    label: Text("Sub Group 1 Code"),
-                  ),
-                  DataColumn(
-                    label: Text("Sub Group 2 Name"),
-                  ),
+                    showCheckboxColumn: false,
+                    columnSpacing: defaultPadding,
+                    minWidth: 600,
+                    columns: const [
+                      DataColumn(
+                        label: Text("Main Group Code/Name"),
+                      ),
+                      DataColumn(
+                        label: Text("Sub group1 Code/Name"),
+                      ),
+                      DataColumn(
+                        label: Text("Sub Group 2 Name"),
+                      ),
 
-                  DataColumn(
-                    label: Text("Sub Group 2 Code"),
-                  ),
-                  DataColumn(
-                    label: Text("Sub Groups"),
-                  ),
-                  DataColumn(
-                    label: Text("Actions"),
-                  ),
+                      DataColumn(
+                        label: Text("Sub Group 2 Code"),
+                      ),
+                      DataColumn(
+                        label: Text("Sub Groups"),
+                      ),
+                      DataColumn(
+                        label: Text("Actions"),
+                      ),
 
 
-                ],
-                rows:  _buildList(context, snapshot.data!.docs)
-              );
-            },
+                    ],
+                    rows:  _buildList(context, snapshot.data!.docs)
+                  );
+                },
+              ),
+
+          ),*/
+          Row(
+            children: [
+              Expanded(
+                flex:3,
+                child: InkWell(
+                  onTap: ()async{
+
+
+                  },
+                  child: Container(
+                    height: 50,
+
+
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(7),
+                          bottomLeft: Radius.circular(7),
+                        )
+                    ),
+                    alignment: Alignment.center,
+                    child: DropdownButton<String>(
+                      value: filter,
+                      isExpanded: false,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(
+
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          filter=value!;
+                        });
+                      },
+                      items: ['Main Group Code','Sub Group 1 Code','Sub Group 2'].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex:7,
+                child: TextFormField(
+                  controller: _controller,
+
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value){
+                    setState(() {
+                      query=value;
+                    });
+                  },
+
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(15),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 0.5
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 0.5,
+                      ),
+                    ),
+                    hintText: 'Search',
+                    suffixIcon: IconButton(
+                      onPressed: (){
+                        /*setState(() {
+                          query=_controller.text;
+                        });*/
+                      },
+                      icon: const Icon(Icons.search,color: primaryColor,),
+                    ),
+                    // If  you are using latest version of flutter then lable text and hint text shown like this
+                    // if you r using flutter less then 1.20.* then maybe this is not working properly
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                  ),
+                ),
+              ),
+
+            ],
           ),
+          Expanded(
+            child: FutureBuilder<List<SubGroup2Model>>(
+                future: FirebaseApi.getAllSubgroup2Filtered(filter,query),
+                builder: (context, AsyncSnapshot<List<SubGroup2Model>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                        child: CircularProgressIndicator()
+                    );
+                  }
+                  else {
+                    if (snapshot.hasError) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("Something went wrong"),
+                      );
+                    }
+                    else if (snapshot.data!.length==0) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("No Data"),
+                      );
+                    }
 
+                    else {
+
+
+                      return DataTable2(
+
+                          showCheckboxColumn: false,
+                          columnSpacing: defaultPadding,
+                          minWidth: 600,
+                          columns: const [
+                            DataColumn(
+                              label: Text("Main Group Code/Name"),
+                            ),
+                            DataColumn(
+                              label: Text("Sub group1 Code/Name"),
+                            ),
+                            DataColumn(
+                              label: Text("Sub Group 2 Name"),
+                            ),
+
+                            DataColumn(
+                              label: Text("Sub Group 2 Code"),
+                            ),
+                            DataColumn(
+                              label: Text("Sub Groups"),
+                            ),
+                            DataColumn(
+                              label: Text("Actions"),
+                            ),
+
+
+                          ],
+                          rows:  List<DataRow>.generate(snapshot.data!.length, (index){
+                            return DataRow(
+                                cells: [
+
+                                  DataCell( FutureBuilder<MainGroupModel?>(
+                                      future: FirebaseApi.getMainGroupModel(snapshot.data![index].mainGroupCode),
+                                      builder: (context, AsyncSnapshot<MainGroupModel?> usersnap) {
+                                        if (usersnap.connectionState == ConnectionState.waiting) {
+                                          return Center(
+                                            child: CupertinoActivityIndicator(),
+                                          );
+                                        }
+                                        else {
+                                          if (usersnap.hasError) {
+                                            print("error ${usersnap.error}");
+                                            return Center(
+                                              child: Text("${usersnap.error}"),
+                                            );
+                                          }
+
+
+
+                                          else {
+                                            if(usersnap.data==null){
+                                              return Text('${snapshot.data![index].mainGroupCode}/ N/A');
+                                            }
+                                            else{
+                                              return Text('${snapshot.data![index].mainGroupCode}/${usersnap.data!.name}');
+
+                                            }
+
+                                          }
+                                        }
+                                      }
+                                  ),),
+                                  DataCell( FutureBuilder<SubGroup1Model?>(
+                                      future: FirebaseApi.getSubGroup1Model(snapshot.data![index].subGroup1Code),
+                                      builder: (context, AsyncSnapshot<SubGroup1Model?> usersnap) {
+                                        if (usersnap.connectionState == ConnectionState.waiting) {
+                                          return Center(
+                                            child: CupertinoActivityIndicator(),
+                                          );
+                                        }
+                                        else {
+                                          if (usersnap.hasError) {
+                                            print("error ${usersnap.error}");
+                                            return Center(
+                                              child: Text("${usersnap.error}"),
+                                            );
+                                          }
+
+
+
+                                          else {
+                                            if(usersnap.data==null){
+                                              return Text('${snapshot.data![index].subGroup1Code}/ N/A');
+                                            }
+                                            else{
+                                              return Text('${snapshot.data![index].subGroup1Code}/${usersnap.data!.name}');
+
+                                            }
+
+                                          }
+                                        }
+                                      }
+                                  ),),
+                                  DataCell(Text(snapshot.data![index].name)),
+                                  DataCell(Text(snapshot.data![index].code)),
+                                  DataCell(
+                                      InkWell(
+                                        onTap: (){
+                                          _showSubGroupsDialog(snapshot.data![index]);
+                                        },
+                                        child: Text("View",),
+                                      )
+                                  ),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: (){
+                                            _showEditDialog(snapshot.data![index]);
+                                          },
+                                          icon: Icon(Icons.edit,color: primaryColor,),
+                                        ),
+                                        IconButton(
+                                          onPressed: ()async{
+                                            await FirebaseFirestore.instance.collection('sub_group2').doc(snapshot.data![index].id).delete().then((value) {
+                                              print("deleted");
+                                            }).onError((error, stackTrace){
+
+                                              CoolAlert.show(
+                                                context: context,
+                                                type: CoolAlertType.error,
+                                                text: error.toString(),
+                                              );
+                                            });
+                                          },
+                                          icon: Icon(Icons.delete_forever,color: primaryColor,),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                ]);
+                          })
+                      );
+                    }
+                  }
+                }
+            ),
+          ),
+        ],
       )
     );
   }
 
-  List<DataRow> _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-    return  snapshot.map((data) => _buildListItem(context, data)).toList();
-  }
 
-  DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
-    final model = SubGroup2Model.fromSnapshot(data);
-    return DataRow(
-        cells: [
-          DataCell(Text(model.mainGroupCode)),
-          DataCell(Text(model.subGroup1Code)),
-          DataCell(Text(model.name)),
-          DataCell(Text(model.code)),
-          DataCell(
-              InkWell(
-                onTap: (){
-                  _showSubGroupsDialog(model);
-                },
-                child: Text("View",),
-              )
-          ),
-          DataCell(
-            Row(
-              children: [
-                IconButton(
-                  onPressed: (){
-                    _showEditDialog(model);
-                  },
-                  icon: Icon(Icons.edit,color: primaryColor,),
-                ),
-                IconButton(
-                  onPressed: ()async{
-                    await FirebaseFirestore.instance.collection('sub_group2').doc(model.id).delete().then((value) {
-                      print("deleted");
-                    }).onError((error, stackTrace){
-
-                      CoolAlert.show(
-                        context: context,
-                        type: CoolAlertType.error,
-                        text: error.toString(),
-                      );
-                    });
-                  },
-                  icon: Icon(Icons.delete_forever,color: primaryColor,),
-                ),
-              ],
-            ),
-          ),
-
-        ]);
-  }
 
 
 }

@@ -6,6 +6,7 @@ import 'package:cool_alert/cool_alert.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../data/firebase_api.dart';
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
 class ReportList extends StatefulWidget {
@@ -18,120 +19,291 @@ class ReportList extends StatefulWidget {
 
 class _ReportListState extends State<ReportList> {
 
-
+  String filter='Name';
+  String query='';
+  var _controller=TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Container(
+        height: MediaQuery.of(context).size.height*0.8,
+        width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height*0.8,
-        width: MediaQuery.of(context).size.width,
-        child:StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').orderBy('createdAt',descending: true).snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return Text('Something went wrong');
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                margin: EdgeInsets.all(30),
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.data!.size==0){
-              return Container(
-                width: double.infinity,
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.all(80),
-                alignment: Alignment.center,
-                child: Text("No data found"),
-              );
-            }
-            print("size ${snapshot.data!.size}");
-            return  DataTable2(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex:3,
+                child: InkWell(
+                  onTap: ()async{
 
-                showCheckboxColumn: false,
-                columnSpacing: defaultPadding,
-                minWidth: 600,
-                columns: const [
 
-                  DataColumn(
-                    label: Text("Name"),
+                  },
+                  child: Container(
+                    height: 50,
+
+
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(7),
+                          bottomLeft: Radius.circular(7),
+                        )
+                    ),
+                    alignment: Alignment.center,
+                    child: DropdownButton<String>(
+                      value: filter,
+                      isExpanded: false,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(
+
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          filter=value!;
+                        });
+                      },
+                      items: ['Name','Email','Mobile','City','Country','Main Group','Sub Group 1','Sub Group 2','Sub Group 3','Sub Group 4'].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                  DataColumn(
-                    label: Text("Email"),
-                  ),
-                  DataColumn(
-                    label: Text("Referred By"),
-                  ),
-                  DataColumn(
-                    label: Text("Actions"),
-                  ),
+                ),
+              ),
+              Expanded(
+                flex:7,
+                child: TextFormField(
+                  controller: _controller,
 
-                ],
-                rows:  _buildList(context, snapshot.data!.docs)
-            );
-          },
-        ),
-      )
-    );
-  }
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value){
+                    setState(() {
+                      query=value;
+                    });
+                  },
 
-  List<DataRow> _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-    return  snapshot.map((data) => _buildListItem(context, data)).toList();
-  }
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(15),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 0.5
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 0.5,
+                      ),
+                    ),
+                    hintText: 'Search',
+                    suffixIcon: IconButton(
+                      onPressed: (){
+                        /*setState(() {
+                          query=_controller.text;
+                        });*/
+                      },
+                      icon: const Icon(Icons.search,color: primaryColor,),
+                    ),
+                    // If  you are using latest version of flutter then lable text and hint text shown like this
+                    // if you r using flutter less then 1.20.* then maybe this is not working properly
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                  ),
+                ),
+              ),
 
-  DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
-    final model = UserModel.fromSnapshot(data);
-    return DataRow(
-        cells: [
-          DataCell(Text(model.name)),
-          DataCell(Text(model.email)),
-          DataCell(
-            model.referred_by=='none'?
-            Text('None'):
-            FutureBuilder<UserModel>(
-                future: getUserData(model.referred_by),
-                builder: (context, AsyncSnapshot<UserModel> usersnap) {
-                  if (usersnap.connectionState == ConnectionState.waiting) {
+            ],
+          ),
+          Expanded(
+            child: FutureBuilder<List<UserModel>>(
+                future: FirebaseApi.getAllUsersFiltered(filter,query),
+                builder: (context, AsyncSnapshot<List<UserModel>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: CupertinoActivityIndicator(),
+                        child: CircularProgressIndicator()
                     );
                   }
                   else {
-                    if (usersnap.hasError) {
-                      print("error ${usersnap.error}");
-                      return Center(
-                        child: Text("something went wrong : ${usersnap.error}"),
+                    if (snapshot.hasError) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("Something went wrong"),
+                      );
+                    }
+                    else if (snapshot.data!.length==0) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("No Data"),
                       );
                     }
 
-
-
                     else {
-                      return Text(usersnap.data!.name);
 
+
+                      return DataTable2(
+
+                          showCheckboxColumn: false,
+                          columnSpacing: defaultPadding,
+                          minWidth: 600,
+                          columns: const [
+                            DataColumn(
+                              label: Text("Name"),
+                            ),
+                            DataColumn(
+                              label: Text("Email"),
+                            ),
+                            DataColumn(
+                              label: Text("Referred By"),
+                            ),
+                            DataColumn(
+                              label: Text("Actions"),
+                            ),
+
+
+                          ],
+                          rows:  List<DataRow>.generate(snapshot.data!.length, (index){
+                            return DataRow(
+                                cells: [
+
+
+                                  DataCell(Text(snapshot.data![index].name)),
+                                  DataCell(Text(snapshot.data![index].email)),
+
+                                  DataCell(
+                                    snapshot.data![index].referred_by=='none'?
+                                    Text('None'):
+                                    FutureBuilder<UserModel>(
+                                        future: getUserData(snapshot.data![index].referred_by),
+                                        builder: (context, AsyncSnapshot<UserModel> usersnap) {
+                                          if (usersnap.connectionState == ConnectionState.waiting) {
+                                            return Center(
+                                              child: CupertinoActivityIndicator(),
+                                            );
+                                          }
+                                          else {
+                                            if (usersnap.hasError) {
+                                              print("error ${usersnap.error}");
+                                              return Center(
+                                                child: Text("something went wrong : ${usersnap.error}"),
+                                              );
+                                            }
+
+
+
+                                            else {
+                                              return Text(usersnap.data!.name);
+
+                                            }
+                                          }
+                                        }
+                                    ),
+                                  ),
+                                  DataCell(
+                                      ElevatedButton(
+                                        onPressed: (){
+                                          CustomDialogs.showUserDataDialog(context, snapshot.data![index]);
+                                        },
+                                        child: const Text('View Details'),
+                                      )
+                                  ),
+
+                                ]);
+                          })
+                      );
                     }
                   }
                 }
             ),
           ),
-          DataCell(
-            ElevatedButton(
-              onPressed: (){
-                CustomDialogs.showUserDataDialog(context, model);
-              },
-              child: const Text('View Details'),
-            )
-          ),
+          /*SizedBox(
+            height: MediaQuery.of(context).size.height*0.8,
+            width: MediaQuery.of(context).size.width,
+            child:StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('users').orderBy('createdAt',descending: true).snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    margin: EdgeInsets.all(30),
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.data!.size==0){
+                  return Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(20),
+                    padding: EdgeInsets.all(80),
+                    alignment: Alignment.center,
+                    child: Text("No data found"),
+                  );
+                }
+                print("size ${snapshot.data!.size}");
+                return  DataTable2(
 
-        ]);
+                    showCheckboxColumn: false,
+                    columnSpacing: defaultPadding,
+                    minWidth: 600,
+                    columns: const [
+
+                      DataColumn(
+                        label: Text("Name"),
+                      ),
+                      DataColumn(
+                        label: Text("Email"),
+                      ),
+                      DataColumn(
+                        label: Text("Referred By"),
+                      ),
+                      DataColumn(
+                        label: Text("Actions"),
+                      ),
+
+                    ],
+                    rows:  _buildList(context, snapshot.data!.docs)
+                );
+              },
+            ),
+          ),*/
+        ],
+      )
+    );
   }
+
+
 
   static Future<UserModel> getUserData(String id)async{
     UserModel? request;

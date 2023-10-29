@@ -1,10 +1,16 @@
-import 'dart:html';
-import 'dart:ui' as UI;
-import 'package:chat_app_admin/components/groups/groups_list.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:chat_app_admin/components/location/location_list.dart';
 import 'package:chat_app_admin/components/occupations/occupation_list.dart';
+import 'package:chat_app_admin/data/firebase_api.dart';
+import 'package:chat_app_admin/model/attributes_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import '../../utils/constants.dart';
@@ -232,12 +238,9 @@ class _LocationState extends State<Location> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "",
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
+
                           ElevatedButton.icon(
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.symmetric(
@@ -251,6 +254,116 @@ class _LocationState extends State<Location> {
                             },
                             icon: Icon(Icons.add),
                             label: Text("Add Location"),
+                          ),
+                          SizedBox(width: 10,),
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              var picked = await FilePicker.platform.pickFiles(allowedExtensions: ['csv'],type: FileType.custom);
+
+                              if (picked != null) {
+                                print(picked.files.first.name);
+                                List<int> bytes = picked.files.first.bytes!;
+                                String csvString = String.fromCharCodes(bytes);
+                                List<List<dynamic>> parsedCSV = CsvToListConverter().convert(csvString);
+                                print('pl ${parsedCSV}');
+                                List<AttributeModel> locations=[];
+                                parsedCSV.forEach((element) {
+                                  AttributeModel location=AttributeModel(
+                                    '',
+                                    element[1].toString(),
+                                    '',
+                                    0
+
+                                  );
+                                  //if(coaches.length<10)
+                                  locations.add(location);
+
+                                });
+                                for (var element in locations) {
+                                  if (element.name!='Name') {
+                                    int count=0;
+                                    await FirebaseFirestore.instance.collection('location')
+                                        .orderBy("codeCount",descending: false)
+                                        .get().then((QuerySnapshot querySnapshot) {
+                                      querySnapshot.docs.forEach((doc) {
+                                        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                        print("code count ${data['codeCount']}");
+                                        count=data['codeCount'];
+                                      });
+                                    });
+                                    count+=1;
+                                    String subCode="";
+                                    if(count.toString().length==1){
+                                      subCode="00${count}";
+                                    }
+                                    else if(count.toString().length==2){
+                                      subCode="0${count}";
+                                    }
+                                    else{
+                                      subCode="${count}";
+                                    }
+                                    await FirebaseFirestore.instance.collection('location').add({
+                                      "name":element.name,
+                                      "code":subCode,
+                                      "codeCount":count,
+                                      "status":"Active",
+                                      "createdAt":DateTime.now().millisecondsSinceEpoch,
+
+                                    });
+                                  }
+
+
+                                }
+
+
+
+                              }
+
+                            },
+                            icon: const Icon(Icons.upload),
+                            label: const Text("Import"),
+                          ),
+                          SizedBox(width: 10,),
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              List<String> rowHeader = ["Code","Name"];
+                              List<List<dynamic>> rows = [];
+                              List<AttributeModel> list=await FirebaseApi.getAllLocations();
+                              rows.add(rowHeader);
+                              for(int i=0;i<list.length;i++){
+                                List<dynamic> dataRow=[];
+                                dataRow.add(list[i].code);
+                                dataRow.add(list[i].name);
+                                rows.add(dataRow);
+                              }
+                              String csv = const ListToCsvConverter().convert(rows);
+                              Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                              await FileSaver.instance.saveFile(
+                                name: 'locations',
+                                bytes: bytes,
+                                ext: 'csv',
+                                mimeType: MimeType.csv,
+                              );
+
+
+                            },
+                            icon: const Icon(Icons.download),
+                            label: const Text("Export"),
                           ),
                         ],
                       ),

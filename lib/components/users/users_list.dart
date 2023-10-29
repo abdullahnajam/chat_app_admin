@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../data/firebase_api.dart';
 import '../../model/attributes_model.dart';
 import '../../model/main_group_model.dart';
 import '../../model/occupation_model.dart';
@@ -23,7 +24,9 @@ class UserList extends StatefulWidget {
 
 
 class _UserListState extends State<UserList> {
-
+  String filter='Name';
+  String query='';
+  var _controller=TextEditingController();
 
   Future<void> _showEditDialog(UserModel model) async {
 
@@ -3926,287 +3929,442 @@ class _UserListState extends State<UserList> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        height: MediaQuery.of(context).size.height*0.8,
+        width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.all(defaultPadding),
       decoration: const BoxDecoration(
         color: secondaryColor,
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      child: SizedBox(
-          height: MediaQuery.of(context).size.height*0.8,
-          width: MediaQuery.of(context).size.width,
-          child:SizedBox(
-            height: MediaQuery.of(context).size.height*0.8,
-            width: MediaQuery.of(context).size.width,
-            child:StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').orderBy('createdAt',descending: true).snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return const Text('Something went wrong');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(
-                    margin: const EdgeInsets.all(30),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex:3,
+                child: InkWell(
+                  onTap: ()async{
+
+
+                  },
+                  child: Container(
+                    height: 50,
+
+
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(7),
+                          bottomLeft: Radius.circular(7),
+                        )
+                    ),
                     alignment: Alignment.center,
-                    child: const CircularProgressIndicator(),
-                  );
+                    child: DropdownButton<String>(
+                      value: filter,
+                      isExpanded: false,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      elevation: 16,
+                      style: const TextStyle(color: Colors.black),
+                      underline: Container(
+
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          filter=value!;
+                        });
+                      },
+                      items: ['Name','Email','Mobile','City','Country'].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex:7,
+                child: TextFormField(
+                  controller: _controller,
+
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  onChanged: (value){
+                    setState(() {
+                      query=value;
+                    });
+                  },
+
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(15),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 0.5
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 0.5,
+                      ),
+                    ),
+                    hintText: 'Search',
+                    suffixIcon: IconButton(
+                      onPressed: (){
+                        /*setState(() {
+                          query=_controller.text;
+                        });*/
+                      },
+                      icon: const Icon(Icons.search,color: primaryColor,),
+                    ),
+                    // If  you are using latest version of flutter then lable text and hint text shown like this
+                    // if you r using flutter less then 1.20.* then maybe this is not working properly
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+          Expanded(
+            child: FutureBuilder<List<UserModel>>(
+                future: FirebaseApi.getAllUsersFiltered(filter,query),
+                builder: (context, AsyncSnapshot<List<UserModel>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                        child: CircularProgressIndicator()
+                    );
+                  }
+                  else {
+                    if (snapshot.hasError) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("Something went wrong"),
+                      );
+                    }
+                    else if (snapshot.data!.length==0) {
+                      print("error ${snapshot.error}");
+                      return const Center(
+                        child: Text("No Data"),
+                      );
+                    }
+
+                    else {
+
+
+                      return DataTable2(
+
+                          showCheckboxColumn: false,
+                          columnSpacing: defaultPadding,
+                          minWidth: 3000,
+                          columns: const [
+                            DataColumn(
+                              label: Text("ID"),
+                            ),
+                            DataColumn(
+                              label: Text("Group Access"),
+                            ),
+
+                            DataColumn(
+                              label: Text("Display Name"),
+                            ),
+                            DataColumn(
+                              label: Text("Name"),
+                            ),
+
+                            DataColumn(
+                              label: Text("Father Name"),
+                            ),
+                            DataColumn(
+                              label: Text("Email"),
+                            ),
+                            DataColumn(
+                              label: Text("Password"),
+                            ),
+                            DataColumn(
+                              label: Text("Mobile"),
+                            ),
+                            DataColumn(
+                              label: Text("Landline"),
+                            ),
+                            DataColumn(
+                              label: Text("Company"),
+                            ),
+                            DataColumn(
+                              label: Text("DOB"),
+                            ),
+                            DataColumn(
+                              label: Text("Occupation"),
+                            ),
+                            /*DataColumn(
+                              label: Text("Job Description"),
+                            ),
+                            DataColumn(
+                              label: Text('Additional\nResponsibility\nRequired'),
+                            ),
+                            DataColumn(
+                              label: Text("Additional\nResponsibility\nCode"),
+                            ),
+                            DataColumn(
+                              label: Text("Additional\nResponsibility\nType"),
+                            ),
+                            DataColumn(
+                              label: Text("Expatriates"),
+                            ),*/
+                            DataColumn(
+                              label: Text("Location"),
+                            ),
+                            DataColumn(
+                              label: Text("Country"),
+                            ),
+                            DataColumn(
+                              label: Text("Gender"),
+                            ),
+                            DataColumn(
+                              label: Text("Group"),
+                            ),
+                            DataColumn(
+                              label: Text("Sub Group"),
+                            ),
+                            DataColumn(
+                              label: Text("Refer to Friend"),
+                            ),
+                            DataColumn(
+                              label: Text("Action"),
+                            ),
+                            DataColumn(
+                              label: Text("Group Code"),
+                            ),
+                            DataColumn(
+                              label: Text("SubGroup 1\nRepresentative"),
+                            ),
+                            DataColumn(
+                              label: Text("SubGroup 2\nRepresentative"),
+                            ),
+                            DataColumn(
+                              label: Text("SubGroup 3\nRepresentative"),
+                            ),
+                            DataColumn(
+                              label: Text("SubGroup 4\nRepresentative"),
+                            ),
+                            DataColumn(
+                              label: Text("Actions"),
+                            ),
+
+
+                          ],
+                          rows:  List<DataRow>.generate(snapshot.data!.length, (index){
+                            return DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text(snapshot.data![index].id),
+                                  ),
+                                  DataCell(
+                                      InkWell(
+                                        onTap: (){
+                                          _showAccessDialog(snapshot.data![index]);
+                                        },
+                                        child: const Text("Manage",style: TextStyle(color: primaryColor),),
+                                      )
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].displayName),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].name),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].fatherName),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].email),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].password),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].mobile),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].landline),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].companyName),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].dob),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].occupation),
+                                  ),
+                                  /*DataCell(
+                                    Text(snapshot.data![index].jobDescription),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].additionalResponsibilityRequired?'Yes':'No'),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].additionalResponsibilityCode),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].additionalResponsibility),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].expatriates?'Yes':'No'),
+                                  ),*/
+                                  DataCell(
+                                    Text(snapshot.data![index].location),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].country),
+                                  ),
+
+                                  DataCell(
+                                    Text(snapshot.data![index].gender),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].mainGroup),
+                                  ),
+                                  DataCell(
+                                      InkWell(
+                                        onTap: (){
+                                          _showSubGroupsDialog(snapshot.data![index]);
+                                        },
+                                        child: const Text("View"),
+                                      )
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].refer.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].action.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].group.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].subGroup1Representative.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].subGroup2Representative.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].subGroup3Representative.toString()),
+                                  ),
+                                  DataCell(
+                                    Text(snapshot.data![index].subGroup4Representative.toString()),
+                                  ),
+
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: (){
+                                            _showEditDialog(snapshot.data![index]);
+                                          },
+                                          icon: const Icon(Icons.edit,color: primaryColor,),
+                                        ),
+                                        IconButton(
+                                          onPressed: ()async{
+                                            await FirebaseFirestore.instance.collection('users').doc(snapshot.data![index].id).delete().then((value) {
+                                              print("deleted");
+                                            }).onError((error, stackTrace){
+
+                                              CoolAlert.show(
+                                                context: context,
+                                                type: CoolAlertType.error,
+                                                text: error.toString(),
+                                              );
+                                            });
+                                          },
+                                          icon: const Icon(Icons.delete_forever,color: primaryColor,),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                ]);
+                          })
+                      );
+                    }
+                  }
                 }
-                if (snapshot.data!.size==0){
-                  return Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.all(20),
-                    padding: const EdgeInsets.all(80),
-                    alignment: Alignment.center,
-                    child: const Text("No user found"),
-                  );
-                }
-                print("size ${snapshot.data!.size}");
-                return  DataTable2(
-
-                    showCheckboxColumn: false,
-                    columnSpacing: defaultPadding,
-                    minWidth: 3000,
-                    columns: const [
-
-                      DataColumn(
-                        label: Text("ID"),
-                      ),
-                      DataColumn(
-                        label: Text("Group Access"),
-                      ),
-
-                      DataColumn(
-                        label: Text("Display Name"),
-                      ),
-                      DataColumn(
-                        label: Text("Name"),
-                      ),
-
-                      DataColumn(
-                        label: Text("Father Name"),
-                      ),
-                      DataColumn(
-                        label: Text("Email"),
-                      ),
-                      DataColumn(
-                        label: Text("Password"),
-                      ),
-                      DataColumn(
-                        label: Text("Mobile"),
-                      ),
-                      DataColumn(
-                        label: Text("Landline"),
-                      ),
-                      DataColumn(
-                        label: Text("Company"),
-                      ),
-                      DataColumn(
-                        label: Text("DOB"),
-                      ),
-                      DataColumn(
-                        label: Text("Occupation"),
-                      ),
-                      DataColumn(
-                        label: Text("Job Description"),
-                      ),
-                      DataColumn(
-                        label: Text('Additional\nResponsibility\nRequired'),
-                      ),
-                      DataColumn(
-                        label: Text("Additional\nResponsibility\nCode"),
-                      ),
-                      DataColumn(
-                        label: Text("Additional\nResponsibility\nType"),
-                      ),
-                      DataColumn(
-                        label: Text("Expatriates"),
-                      ),
-                      DataColumn(
-                        label: Text("Location"),
-                      ),
-                      DataColumn(
-                        label: Text("Country"),
-                      ),
-                      DataColumn(
-                        label: Text("Gender"),
-                      ),
-                      DataColumn(
-                        label: Text("Group"),
-                      ),
-                      DataColumn(
-                        label: Text("Sub Group"),
-                      ),
-                      DataColumn(
-                        label: Text("Refer to Friend"),
-                      ),
-                      DataColumn(
-                        label: Text("Action"),
-                      ),
-                      DataColumn(
-                        label: Text("Group Code"),
-                      ),
-                      DataColumn(
-                        label: Text("SubGroup 1\nRepresentative"),
-                      ),
-                      DataColumn(
-                        label: Text("SubGroup 2\nRepresentative"),
-                      ),
-                      DataColumn(
-                        label: Text("SubGroup 3\nRepresentative"),
-                      ),
-                      DataColumn(
-                        label: Text("SubGroup 4\nRepresentative"),
-                      ),
-                      DataColumn(
-                        label: Text("Actions"),
-                      ),
-                    ],
-                    rows:  _buildList(context, snapshot.data!.docs)
-                );
-              },
             ),
+          ),
+          /*SizedBox(
+              height: MediaQuery.of(context).size.height*0.8,
+              width: MediaQuery.of(context).size.width,
+              child:SizedBox(
+                height: MediaQuery.of(context).size.height*0.8,
+                width: MediaQuery.of(context).size.width,
+                child:StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('users').orderBy('createdAt',descending: true).snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('Something went wrong');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        margin: const EdgeInsets.all(30),
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.data!.size==0){
+                      return Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(80),
+                        alignment: Alignment.center,
+                        child: const Text("No user found"),
+                      );
+                    }
+                    print("size ${snapshot.data!.size}");
+                    return  DataTable2(
 
-          )
+                        showCheckboxColumn: false,
+                        columnSpacing: defaultPadding,
+                        minWidth: 3000,
+                        columns: const [
 
+
+                        ],
+                        rows:  _buildList(context, snapshot.data!.docs)
+                    );
+                  },
+                ),
+
+              )
+
+          ),*/
+        ],
       )
     );
   }
-  List<DataRow> _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-    return  snapshot.map((data) => _buildListItem(context, data)).toList();
-  }
 
-  DataRow _buildListItem(BuildContext context, DocumentSnapshot data) {
-    final model = UserModel.fromSnapshot(data);
-    return DataRow(
-        cells: [
-          DataCell(
-            Text(model.id),
-          ),
-          DataCell(
-              InkWell(
-                onTap: (){
-                  _showAccessDialog(model);
-                },
-                child: const Text("Manage",style: TextStyle(color: primaryColor),),
-              )
-          ),
-          DataCell(
-            Text(model.displayName),
-          ),
-          DataCell(
-            Text(model.name),
-          ),
-          DataCell(
-            Text(model.fatherName),
-          ),
-          DataCell(
-            Text(model.email),
-          ),
-          DataCell(
-            Text(model.password),
-          ),
-          DataCell(
-            Text(model.mobile),
-          ),
-          DataCell(
-            Text(model.landline),
-          ),
-          DataCell(
-            Text(model.companyName),
-          ),
-          DataCell(
-            Text(model.dob),
-          ),
-          DataCell(
-            Text(model.occupation),
-          ),
-          DataCell(
-            Text(model.jobDescription),
-          ),
-          DataCell(
-            Text(model.additionalResponsibilityRequired?'Yes':'No'),
-          ),
-          DataCell(
-            Text(model.additionalResponsibilityCode),
-          ),
-          DataCell(
-            Text(model.additionalResponsibility),
-          ),
-          DataCell(
-            Text(model.expatriates?'Yes':'No'),
-          ),
-          DataCell(
-            Text(model.location),
-          ),
-          DataCell(
-            Text(model.country),
-          ),
-
-          DataCell(
-            Text(model.gender),
-          ),
-          DataCell(
-            Text(model.mainGroup),
-          ),
-          DataCell(
-              InkWell(
-                onTap: (){
-                  _showSubGroupsDialog(model);
-                },
-                child: const Text("View"),
-              )
-          ),
-          DataCell(
-            Text(model.refer.toString()),
-          ),
-          DataCell(
-            Text(model.action.toString()),
-          ),
-          DataCell(
-            Text(model.group.toString()),
-          ),
-          DataCell(
-            Text(model.subGroup1Representative.toString()),
-          ),
-          DataCell(
-            Text(model.subGroup2Representative.toString()),
-          ),
-          DataCell(
-            Text(model.subGroup3Representative.toString()),
-          ),
-          DataCell(
-            Text(model.subGroup4Representative.toString()),
-          ),
-
-          DataCell(
-            Row(
-              children: [
-                IconButton(
-                  onPressed: (){
-                    _showEditDialog(model);
-                  },
-                  icon: const Icon(Icons.edit,color: primaryColor,),
-                ),
-                IconButton(
-                  onPressed: ()async{
-                    await FirebaseFirestore.instance.collection('users').doc(model.id).delete().then((value) {
-                      print("deleted");
-                    }).onError((error, stackTrace){
-
-                      CoolAlert.show(
-                        context: context,
-                        type: CoolAlertType.error,
-                        text: error.toString(),
-                      );
-                    });
-                  },
-                  icon: const Icon(Icons.delete_forever,color: primaryColor,),
-                ),
-              ],
-            ),
-          ),
-
-        ]);
-  }
 
 
 

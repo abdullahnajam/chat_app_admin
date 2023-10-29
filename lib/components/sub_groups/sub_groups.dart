@@ -1,25 +1,33 @@
-import 'dart:html';
-import 'dart:ui' as UI;
-import 'package:chat_app_admin/components/groups/groups_list.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:chat_app_admin/components/sub_groups/sub_groups2_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups3_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups4_list.dart';
 import 'package:chat_app_admin/components/sub_groups/sub_groups_list.dart';
+import 'package:chat_app_admin/model/sub_group_1_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../data/firebase_api.dart';
 import '../../model/main_group_model.dart';
+import '../../model/sub_group_2_model.dart';
+import '../../model/sub_group_3_model.dart';
+import '../../model/sub_group_4_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/header.dart';
 import '../../utils/responsive.dart';
 class SubGroups extends StatefulWidget {
 
-  GlobalKey<ScaffoldState> _scaffoldKey;
+  final GlobalKey<ScaffoldState> _scaffoldKey;
 
   int index;
-  SubGroups(this._scaffoldKey,this.index);
+  SubGroups(this._scaffoldKey,this.index, {super.key});
 
   @override
   _SubGroupsState createState() => _SubGroupsState();
@@ -43,8 +51,8 @@ class _SubGroupsState extends State<SubGroups> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -65,7 +73,7 @@ class _SubGroupsState extends State<SubGroups> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: primaryColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -77,16 +85,16 @@ class _SubGroupsState extends State<SubGroups> {
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: Text("ADD SUB GROUP 1",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                                padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                                 child: InkWell(
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -100,7 +108,7 @@ class _SubGroupsState extends State<SubGroups> {
                       ),
                       Expanded(
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
@@ -112,7 +120,7 @@ class _SubGroupsState extends State<SubGroups> {
                                 ),
                                 TextFormField(
                                   controller: _mainGroupCodeController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -127,8 +135,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -136,35 +144,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -178,7 +186,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -193,8 +201,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -202,8 +211,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -223,7 +232,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -231,23 +240,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -256,9 +265,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -276,23 +285,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -304,7 +313,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,7 +324,7 @@ class _SubGroupsState extends State<SubGroups> {
                                 ),
                                 TextFormField(
                                   controller: _nameController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -323,23 +332,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -351,7 +360,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,7 +371,7 @@ class _SubGroupsState extends State<SubGroups> {
                                 ),
                                 TextFormField(
                                   controller: _codeController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -370,23 +379,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -398,7 +407,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
 
 
                             InkWell(
@@ -406,7 +415,7 @@ class _SubGroupsState extends State<SubGroups> {
                                 final ProgressDialog pr = ProgressDialog(context: context);
                                 pr.show(max: 100, msg: "Please wait");
                                 await FirebaseFirestore.instance.collection('sub_group1').add({
-                                  "code":"${_codeController.text}",
+                                  "code":_codeController.text,
                                   "name":_nameController.text,
                                   "mainGroupCode":_mainGroupCodeController.text,
                                   "status":"Active",
@@ -464,8 +473,8 @@ class _SubGroupsState extends State<SubGroups> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -486,7 +495,7 @@ class _SubGroupsState extends State<SubGroups> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: primaryColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -498,16 +507,16 @@ class _SubGroupsState extends State<SubGroups> {
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: Text("ADD SUB GROUP ${widget.index}",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                                padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                                 child: InkWell(
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -521,7 +530,7 @@ class _SubGroupsState extends State<SubGroups> {
                       ),
                       Expanded(
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
@@ -532,7 +541,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
 
                                     if (value == null || value.isEmpty) {
@@ -549,8 +558,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -558,35 +567,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -600,7 +609,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -615,8 +624,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -624,8 +634,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -645,7 +655,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -653,23 +663,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -678,9 +688,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -698,23 +708,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -726,7 +736,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -736,7 +746,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -752,8 +762,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -761,35 +771,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -803,7 +813,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -818,8 +828,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -827,8 +838,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -848,7 +859,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -856,23 +867,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -881,9 +892,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -901,23 +912,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -929,7 +940,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -940,7 +951,7 @@ class _SubGroupsState extends State<SubGroups> {
                                 ),
                                 TextFormField(
                                   controller: _nameController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -948,23 +959,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -976,7 +987,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
 
 
                             InkWell(
@@ -1070,8 +1081,8 @@ class _SubGroupsState extends State<SubGroups> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -1092,7 +1103,7 @@ class _SubGroupsState extends State<SubGroups> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: primaryColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -1104,16 +1115,16 @@ class _SubGroupsState extends State<SubGroups> {
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: Text("ADD SUB GROUP ${widget.index}",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                                padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                                 child: InkWell(
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -1127,7 +1138,7 @@ class _SubGroupsState extends State<SubGroups> {
                       ),
                       Expanded(
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
@@ -1138,7 +1149,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
 
                                     if (value == null || value.isEmpty) {
@@ -1155,8 +1166,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -1164,35 +1175,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -1206,7 +1217,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -1221,8 +1232,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -1230,8 +1242,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -1251,7 +1263,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -1259,23 +1271,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -1284,9 +1296,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -1304,23 +1316,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1332,7 +1344,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1342,7 +1354,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -1358,8 +1370,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -1367,35 +1379,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -1409,7 +1421,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -1424,8 +1436,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -1433,8 +1446,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -1454,7 +1467,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -1462,23 +1475,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -1487,9 +1500,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -1507,23 +1520,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1535,7 +1548,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1545,7 +1558,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -1561,8 +1574,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -1570,35 +1583,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -1612,7 +1625,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -1627,8 +1640,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -1636,8 +1650,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -1657,7 +1671,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -1665,23 +1679,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -1690,9 +1704,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -1710,23 +1724,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1738,7 +1752,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1748,7 +1762,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -1757,23 +1771,23 @@ class _SubGroupsState extends State<SubGroups> {
                                   },
                                   controller: _nameController,
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1786,7 +1800,7 @@ class _SubGroupsState extends State<SubGroups> {
                               ],
                             ),
 
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
 
 
                             InkWell(
@@ -1881,8 +1895,8 @@ class _SubGroupsState extends State<SubGroups> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -1903,7 +1917,7 @@ class _SubGroupsState extends State<SubGroups> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: primaryColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -1915,16 +1929,16 @@ class _SubGroupsState extends State<SubGroups> {
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: Text("ADD SUB GROUP ${widget.index}",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                                padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                                 child: InkWell(
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -1938,7 +1952,7 @@ class _SubGroupsState extends State<SubGroups> {
                       ),
                       Expanded(
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
@@ -1949,7 +1963,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
 
                                     if (value == null || value.isEmpty) {
@@ -1966,8 +1980,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -1975,35 +1989,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -2017,7 +2031,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -2032,8 +2046,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -2041,8 +2056,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -2062,7 +2077,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -2070,23 +2085,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -2095,9 +2110,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -2115,23 +2130,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -2143,7 +2158,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2153,7 +2168,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -2169,8 +2184,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -2178,35 +2193,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -2220,7 +2235,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -2235,8 +2250,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -2244,8 +2260,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -2265,7 +2281,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -2273,23 +2289,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -2298,9 +2314,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -2318,23 +2334,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -2346,7 +2362,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2356,7 +2372,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -2372,8 +2388,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -2381,35 +2397,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -2417,13 +2433,11 @@ class _SubGroupsState extends State<SubGroups> {
                                                               filled: true,
                                                               fillColor: Colors.grey[200],
                                                               hintText: 'Search',
-                                                              // If  you are using latest version of flutter then lable text and hint text shown like this
-                                                              // if you r using flutter less then 1.20.* then maybe this is not working properly
                                                               floatingLabelBehavior: FloatingLabelBehavior.always,
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -2438,8 +2452,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -2447,8 +2462,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -2468,7 +2483,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -2476,23 +2491,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -2501,9 +2516,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -2521,23 +2536,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -2549,7 +2564,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2559,7 +2574,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -2575,8 +2590,8 @@ class _SubGroupsState extends State<SubGroups> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -2584,35 +2599,35 @@ class _SubGroupsState extends State<SubGroups> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
                                                   child: Column(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -2626,7 +2641,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -2641,8 +2656,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern)) {
                                                                   search.add(model);
+                                                                }
                                                               });
                                                             });
 
@@ -2650,8 +2666,8 @@ class _SubGroupsState extends State<SubGroups> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
@@ -2671,7 +2687,7 @@ class _SubGroupsState extends State<SubGroups> {
                                                                 child: Column(
                                                                   children: [
                                                                     Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
                                                                   ],
                                                                 ),
@@ -2679,23 +2695,23 @@ class _SubGroupsState extends State<SubGroups> {
                                                             }
 
                                                             if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
+                                                              return const Center(
                                                                 child: CircularProgressIndicator(),
                                                               );
                                                             }
                                                             if (snapshot.data!.size==0){
-                                                              return Center(
+                                                              return const Center(
                                                                   child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
                                                               );
 
                                                             }
 
-                                                            return new ListView(
+                                                            return ListView(
                                                               shrinkWrap: true,
                                                               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                                                                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                                                                return new Padding(
+                                                                return Padding(
                                                                   padding: const EdgeInsets.only(top: 15.0),
                                                                   child: ListTile(
                                                                     onTap: (){
@@ -2704,9 +2720,9 @@ class _SubGroupsState extends State<SubGroups> {
                                                                       });
                                                                       Navigator.pop(context);
                                                                     },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
+                                                                    leading: const Icon(Icons.people),
+                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                   ),
                                                                 );
                                                               }).toList(),
@@ -2724,23 +2740,23 @@ class _SubGroupsState extends State<SubGroups> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -2752,7 +2768,7 @@ class _SubGroupsState extends State<SubGroups> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2762,7 +2778,7 @@ class _SubGroupsState extends State<SubGroups> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -2771,23 +2787,23 @@ class _SubGroupsState extends State<SubGroups> {
                                   },
                                   controller: _nameController,
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -2800,7 +2816,7 @@ class _SubGroupsState extends State<SubGroups> {
                               ],
                             ),
 
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
 
 
                             InkWell(
@@ -2887,11 +2903,11 @@ class _SubGroupsState extends State<SubGroups> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(defaultPadding),
+        padding: const EdgeInsets.all(defaultPadding),
         child: Column(
           children: [
             Header("Sub Group ${widget.index}",widget._scaffoldKey),
-            SizedBox(height: defaultPadding),
+            const SizedBox(height: defaultPadding),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2900,12 +2916,9 @@ class _SubGroupsState extends State<SubGroups> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "",
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
+
                           ElevatedButton.icon(
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.symmetric(
@@ -2928,28 +2941,371 @@ class _SubGroupsState extends State<SubGroups> {
                                 _showAdd4Dialog();
                               }
                             },
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                             label: Text("Add Sub Group ${widget.index}"),
+                          ),
+                          const SizedBox(width: 10,),
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              var picked = await FilePicker.platform.pickFiles(allowedExtensions: ['csv'],type: FileType.custom);
+
+                              if (picked != null) {
+                                print(picked.files.first.name);
+                                List<int> bytes = picked.files.first.bytes!;
+                                String csvString = String.fromCharCodes(bytes);
+                                List<List<dynamic>> parsedCSV = const CsvToListConverter().convert(csvString);
+                                if(widget.index==1){
+                                  List<SubGroup1Model> list=[];
+                                  parsedCSV.forEach((element) {
+                                    SubGroup1Model model=SubGroup1Model(
+                                        '',
+                                        element[1].toString(),
+                                        element[0].toString(),
+                                        element[2].toString(),
+
+                                    );
+                                    //if(coaches.length<10)
+                                    list.add(model);
+
+                                  });
+                                  for (var element in list) {
+                                    if (element.name!='Name') {
+                                      await FirebaseFirestore.instance.collection('sub_group1').add({
+                                        "code":element.code,
+                                        "name":element.name,
+                                        "mainGroupCode":element.mainGroupCode,
+                                        "status":"Active",
+                                        "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                      });
+                                    }
+
+
+                                  }
+                                }
+                                if(widget.index==2){
+                                  List<SubGroup2Model> list=[];
+                                  parsedCSV.forEach((element) {
+                                    SubGroup2Model model=SubGroup2Model(
+                                      '',
+                                      element[1].toString(),
+                                      element[0].toString(),
+                                      element[2].toString(),
+                                      element[3].toString(),
+                                      0
+
+                                    );
+                                    //if(coaches.length<10)
+                                    list.add(model);
+
+                                  });
+                                  for (var element in list) {
+                                    if (element.name!='Name') {
+                                      int count=0;
+                                      await FirebaseFirestore.instance.collection('sub_group2')
+                                          .where("subGroup1Code",isEqualTo:element.subGroup1Code)
+                                          .where("mainGroupCode",isEqualTo:element.mainGroupCode)
+                                          .orderBy("codeCount",descending: false)
+                                          .get().then((QuerySnapshot querySnapshot) {
+                                        querySnapshot.docs.forEach((doc) {
+                                          Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                          print("code count ${data['codeCount']}");
+                                          count=data['codeCount'];
+                                        });
+                                      });
+                                      count+=1;
+                                      String subCode="";
+                                      if(count.toString().length==1){
+                                        subCode="00${count}";
+                                      }
+                                      else if(count.toString().length==2){
+                                        subCode="0${count}";
+                                      }
+                                      else{
+                                        subCode="${count}";
+                                      }
+
+
+                                      await FirebaseFirestore.instance.collection('sub_group2').add({
+                                        "code":"${element.subGroup1Code}-$subCode",
+                                        "name":element.name,
+                                        "mainGroupCode":element.mainGroupCode,
+                                        "subGroup1Code":element.subGroup1Code,
+                                        "status":"Active",
+                                        "codeCount":count,
+                                        "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                      });
+                                    }
+
+
+                                  }
+                                }
+                                if(widget.index==3){
+                                  List<SubGroup3Model> list=[];
+                                  parsedCSV.forEach((element) {
+                                    SubGroup3Model model=SubGroup3Model(
+                                        '',
+                                        element[1].toString(),
+                                        element[0].toString(),
+                                        element[2].toString(),
+                                        element[3].toString(),
+                                        element[4].toString(),
+                                        0
+
+                                    );
+                                    //if(coaches.length<10)
+                                    list.add(model);
+
+                                  });
+                                  for (var element in list) {
+                                    if (element.name!='Name') {
+                                      int count=0;
+                                      await FirebaseFirestore.instance.collection('sub_group3')
+                                          .where("subGroup2Code",isEqualTo:element.subGroup2Code)
+                                          .where("subGroup1Code",isEqualTo:element.subGroup1Code)
+                                          .where("mainGroupCode",isEqualTo:element.mainGroupCode)
+                                          .orderBy("codeCount",descending: false)
+                                          .get().then((QuerySnapshot querySnapshot) {
+                                        querySnapshot.docs.forEach((doc) {
+                                          Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                          print("code count ${data['codeCount']}");
+                                          count=data['codeCount'];
+                                        });
+                                      });
+                                      count+=1;
+                                      String subCode="";
+                                      if(count.toString().length==1){
+                                        subCode="00${count}";
+                                      }
+                                      else if(count.toString().length==2){
+                                        subCode="0${count}";
+                                      }
+                                      else{
+                                        subCode="${count}";
+                                      }
+                                      await FirebaseFirestore.instance.collection('sub_group3').add({
+                                        "code":'${element.subGroup2Code}-$subCode',
+                                        "name":element.name,
+                                        "mainGroupCode":element.mainGroupCode,
+                                        "subGroup1Code":element.subGroup1Code,
+                                        "subGroup2Code":element.subGroup2Code,
+                                        "status":"Active",
+                                        "codeCount":count,
+                                        "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                      });
+                                    }
+
+
+                                  }
+                                }
+
+                                if(widget.index==4){
+                                  List<SubGroup4Model> list=[];
+                                  parsedCSV.forEach((element) {
+                                    SubGroup4Model model=SubGroup4Model(
+                                        '',
+                                        element[1].toString(),
+                                        element[0].toString(),
+                                        element[2].toString(),
+                                        element[3].toString(),
+                                        element[4].toString(),
+                                        element[5].toString(),
+                                        0
+
+                                    );
+                                    //if(coaches.length<10)
+                                    list.add(model);
+
+                                  });
+                                  for (var element in list) {
+                                    if (element.name!='Name') {
+                                      int count=0;
+                                      await FirebaseFirestore.instance.collection('sub_group4')
+                                          .where("subGroup3Code",isEqualTo:element.subGroup3Code)
+                                          .where("subGroup2Code",isEqualTo:element.subGroup2Code)
+                                          .where("subGroup1Code",isEqualTo:element.subGroup1Code)
+                                          .where("mainGroupCode",isEqualTo:element.mainGroupCode)
+                                          .orderBy("codeCount",descending: false)
+                                          .get().then((QuerySnapshot querySnapshot) {
+                                        querySnapshot.docs.forEach((doc) {
+                                          Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                          print("code count ${data['codeCount']}");
+                                          count=data['codeCount'];
+                                        });
+                                      });
+                                      print("pre code $count");
+                                      count+=1;
+                                      print("post code $count");
+                                      String subCode="";
+                                      if(count.toString().length==1){
+                                        subCode="00${count}";
+                                      }
+                                      else if(count.toString().length==2){
+                                        subCode="0${count}";
+                                      }
+                                      else{
+                                        subCode="${count}";
+                                      }
+                                      await FirebaseFirestore.instance.collection('sub_group4').add({
+                                        "code":'${element.subGroup3Code}-$subCode',
+                                        "name":element.name,
+                                        "mainGroupCode":element.mainGroupCode,
+                                        "subGroup1Code":element.subGroup1Code,
+                                        "subGroup2Code":element.subGroup2Code,
+                                        "subGroup3Code":element.subGroup3Code,
+                                        "status":"Active",
+                                        "codeCount":count,
+
+                                        "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                      });
+                                    }
+
+
+                                  }
+                                }
+
+
+                              }
+
+                            },
+                            icon: const Icon(Icons.upload),
+                            label: const Text("Import"),
+                          ),
+                          const SizedBox(width: 10,),
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              if(widget.index==1){
+                                List<String> rowHeader = ["Code","Name",'Main Group Code'];
+                                List<List<dynamic>> rows = [];
+                                List<SubGroup1Model> list=await FirebaseApi.getAllSubgroup1();
+                                rows.add(rowHeader);
+                                for(int i=0;i<list.length;i++){
+                                  List<dynamic> dataRow=[];
+                                  dataRow.add(list[i].code);
+                                  dataRow.add(list[i].name);
+                                  dataRow.add(list[i].mainGroupCode);
+                                  rows.add(dataRow);
+                                }
+                                String csv = const ListToCsvConverter().convert(rows);
+                                Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                                await FileSaver.instance.saveFile(
+                                  name: 'subgroup1',
+                                  bytes: bytes,
+                                  ext: 'csv',
+                                  mimeType: MimeType.csv,
+                                );
+                              }
+                              if(widget.index==2){
+                                List<String> rowHeader = ["Code","Name",'Main Group Code','Sub Group1 Code'];
+                                List<List<dynamic>> rows = [];
+                                List<SubGroup2Model> list=await FirebaseApi.getAllSubgroup2();
+                                rows.add(rowHeader);
+                                for(int i=0;i<list.length;i++){
+                                  List<dynamic> dataRow=[];
+                                  dataRow.add(list[i].code);
+                                  dataRow.add(list[i].name);
+                                  dataRow.add(list[i].mainGroupCode);
+                                  dataRow.add(list[i].subGroup1Code);
+                                  rows.add(dataRow);
+                                }
+                                String csv = const ListToCsvConverter().convert(rows);
+                                Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                                await FileSaver.instance.saveFile(
+                                  name: 'subgroup2',
+                                  bytes: bytes,
+                                  ext: 'csv',
+                                  mimeType: MimeType.csv,
+                                );
+                              }
+                              if(widget.index==3){
+                                List<String> rowHeader = ["Code","Name",'Main Group Code','Sub Group1 Code','Sub Group2 Code'];
+                                List<List<dynamic>> rows = [];
+                                List<SubGroup3Model> list=await FirebaseApi.getAllSubgroup3();
+                                rows.add(rowHeader);
+                                for(int i=0;i<list.length;i++){
+                                  List<dynamic> dataRow=[];
+                                  dataRow.add(list[i].code);
+                                  dataRow.add(list[i].name);
+                                  dataRow.add(list[i].mainGroupCode);
+                                  dataRow.add(list[i].subGroup1Code);
+                                  dataRow.add(list[i].subGroup2Code);
+                                  rows.add(dataRow);
+                                }
+                                String csv = const ListToCsvConverter().convert(rows);
+                                Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                                await FileSaver.instance.saveFile(
+                                  name: 'subgroup3',
+                                  bytes: bytes,
+                                  ext: 'csv',
+                                  mimeType: MimeType.csv,
+                                );
+                              }
+                              if(widget.index==4){
+                                List<String> rowHeader = ["Code","Name",'Main Group Code','Sub Group1 Code','Sub Group2 Code','Sub Group3 Code'];
+                                List<List<dynamic>> rows = [];
+                                List<SubGroup4Model> list=await FirebaseApi.getAllSubgroup4();
+                                rows.add(rowHeader);
+                                for(int i=0;i<list.length;i++){
+                                  List<dynamic> dataRow=[];
+                                  dataRow.add(list[i].code);
+                                  dataRow.add(list[i].name);
+                                  dataRow.add(list[i].mainGroupCode);
+                                  dataRow.add(list[i].subGroup1Code);
+                                  dataRow.add(list[i].subGroup2Code);
+                                  dataRow.add(list[i].subGroup3Code);
+                                  rows.add(dataRow);
+                                }
+                                String csv = const ListToCsvConverter().convert(rows);
+                                Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                                await FileSaver.instance.saveFile(
+                                  name: 'subgroup4',
+                                  bytes: bytes,
+                                  ext: 'csv',
+                                  mimeType: MimeType.csv,
+                                );
+                              }
+
+
+                            },
+                            icon: const Icon(Icons.download),
+                            label: const Text("Export"),
                           ),
                         ],
                       ),
 
-                      SizedBox(height: defaultPadding),
+                      const SizedBox(height: defaultPadding),
                       if(widget.index==1)
-                        SubGroupList()
+                        const SubGroupList()
                       else if(widget.index==2)
-                        SubGroup2List()
+                        const SubGroup2List()
                       else if(widget.index==3)
-                          SubGroup3List()
+                          const SubGroup3List()
                         else if(widget.index==4)
-                            SubGroup4List(),
+                            const SubGroup4List(),
                       if (Responsive.isMobile(context))
-                        SizedBox(height: defaultPadding),
+                        const SizedBox(height: defaultPadding),
                     ],
                   ),
                 ),
                 if (!Responsive.isMobile(context))
-                  SizedBox(width: defaultPadding),
+                  const SizedBox(width: defaultPadding),
 
 
               ],
@@ -2960,389 +3316,4 @@ class _SubGroupsState extends State<SubGroups> {
     );
   }
 
-  /*Future<void> _showAddDialog() async {
-    int _step = 0;
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-
-          builder: (context,setState){
-
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
-              insetAnimationDuration: const Duration(seconds: 1),
-              insetAnimationCurve: Curves.fastOutSlowIn,
-              elevation: 2,
-
-              child: Container(
-                width: MediaQuery.of(context).size.width*0.5,
-                height: MediaQuery.of(context).size.width*0.9,
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10)
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: Container(
-                            margin: EdgeInsets.all(10),
-                            child: Text("Add Teacher",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.black),),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            margin: EdgeInsets.all(10),
-                            child: IconButton(
-                              icon: Icon(Icons.close,color: Colors.grey,),
-                              onPressed: ()=>Navigator.pop(context),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    Expanded(
-                      child: Stepper(
-                        type: StepperType.horizontal,
-                        controlsBuilder: (BuildContext context, ControlsDetails controls) {
-                          return Row(
-                            children: <Widget>[
-                              TextButton(
-                                onPressed: controls.onStepContinue,
-                                child: _step==3?  Text('Add Teacher'):Text('Continue'),
-                              ),
-                              TextButton(
-                                onPressed: controls.onStepCancel,
-                                child: const Text('Back'),
-                              ),
-                            ],
-                          );
-                        },
-                        currentStep: _step,
-                        onStepCancel: () {
-                          if (_step > 0) {
-                            setState(() { _step -= 1; });
-                          }
-                        },
-                        onStepContinue: () {
-                          if (_step < 3) {
-                            setState(() { _step += 1; });
-                            print("step continue $_step");
-                          }
-
-                        },
-                        onStepTapped: (int index) {
-                          setState(() { _step = index; });
-                        },
-                        steps: <Step>[
-                          Step(
-                            isActive: _step >= 0?true:false,
-                            state: _step >= 1 ? StepState.complete : StepState.disabled,
-                            title: Text('Group'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Name",
-                                      style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                    ),
-                                    TextFormField(
-                                      style: TextStyle(color: Colors.black),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter some text';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                            color: primaryColor,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                              color: primaryColor,
-                                              width: 0.5
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                            color: primaryColor,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        hintText: "",
-                                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                                      ),
-                                    ),
-
-                                  ],
-                                ),
-                                SizedBox(height: 10,),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Code",
-                                      style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                    ),
-                                    TextFormField(
-                                      style: TextStyle(color: Colors.black),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter some text';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                            color: primaryColor,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                              color: primaryColor,
-                                              width: 0.5
-                                          ),
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
-                                            color: primaryColor,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                        hintText: "",
-                                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                                      ),
-                                    ),
-
-                                  ],
-                                ),
-                                SizedBox(height: 10,),
-
-
-                              ],
-                            ),
-                          ),
-                          Step(
-                              isActive: _step >= 1?true:false,
-                              state: _step >= 2 ? StepState.complete : StepState.disabled,
-                              title: Text('Sub Group 1'),
-                              content: Column(
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Name",
-                                        style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                      ),
-                                      TextFormField(
-                                        style: TextStyle(color: Colors.black),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter some text';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(15),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                              color: primaryColor,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5
-                                            ),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                              color: primaryColor,
-                                              width: 0.5,
-                                            ),
-                                          ),
-                                          hintText: "",
-                                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                                        ),
-                                      ),
-
-                                    ],
-                                  ),
-                                  SizedBox(height: 10,),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Code",
-                                        style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
-                                      ),
-                                      TextFormField(
-                                        style: TextStyle(color: Colors.black),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter some text';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.all(15),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                              color: primaryColor,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5
-                                            ),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(7.0),
-                                            borderSide: BorderSide(
-                                              color: primaryColor,
-                                              width: 0.5,
-                                            ),
-                                          ),
-                                          hintText: "",
-                                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                                        ),
-                                      ),
-
-                                    ],
-                                  ),
-                                  SizedBox(height: 10,),
-                                  InkWell(
-                                    onTap: ()async{
-
-                                    },
-                                    child: Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(7),
-                                        color: primaryColor,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text("Add Sub Group",style: Theme.of(context).textTheme.button!.apply(color: Colors.white),),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10,),
-
-                                  Container(
-                                    height: MediaQuery.of(context).size.height*0.4,
-                                    color: Colors.green,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: 10,
-                                      itemBuilder: (context,int i){
-                                        return Padding(
-                                            padding: const EdgeInsets.all(15.0),
-                                            child: CheckboxListTile(
-                                              title: Text("tempDepartments[i].model.name"),
-                                              value: true,
-                                              onChanged: (bool? value) {
-
-                                              },
-                                            )
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              )
-                          ),
-                          Step(
-                            isActive: _step >= 2?true:false,
-                            state: _step >= 3 ? StepState.complete : StepState.disabled,
-                            title: Text('Sub Group 2'),
-                            content: Container(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: 10,
-                                itemBuilder: (context,int i){
-                                  return Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: CheckboxListTile(
-                                        title: Text("tempDepartments[i].model.name"),
-                                        value: true,
-                                        onChanged: (bool? value) {
-
-                                        },
-                                      )
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Step(
-                            isActive:_step >= 3?true:false,
-                            state: _step >= 4 ? StepState.complete : StepState.disabled,
-                            title: Text('Sub Group 3'),
-                            content:Container(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: 10,
-                                itemBuilder: (context,int i){
-                                  return Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: CheckboxListTile(
-                                        title: Text("tempDepartments[i].model.name"),
-                                        value: true,
-                                        onChanged: (bool? value) {
-
-                                        },
-                                      )
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }*/
 }

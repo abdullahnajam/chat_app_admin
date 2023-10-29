@@ -3,6 +3,7 @@ import 'dart:ui' as UI;
 import 'package:chat_app_admin/components/users/users_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,6 +35,7 @@ class _UsersState extends State<Users> {
     var _nameController=TextEditingController();
     var _emailController=TextEditingController();
     var _mobileController=TextEditingController();
+    String phoneCode='+92';
     var _genderController=TextEditingController();
 
     var _dobController=TextEditingController();
@@ -1470,7 +1472,7 @@ class _UsersState extends State<Users> {
                               ],
                             ),
                             const SizedBox(height: 20,),
-                            Column(
+                            /*Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1673,7 +1675,7 @@ class _UsersState extends State<Users> {
 
                               ],
                             ),
-                            const SizedBox(height: 20,),
+                            const SizedBox(height: 20,),*/
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1877,7 +1879,7 @@ class _UsersState extends State<Users> {
 
                               ],
                             ),
-                            Column(
+                            /*Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -2136,7 +2138,7 @@ class _UsersState extends State<Users> {
 
                                 ]
                             ),
-                            if(expatriates)
+                            if(expatriates)*/
                               Column(
                                   children: [
                                     const SizedBox(height: 20,),
@@ -2172,7 +2174,7 @@ class _UsersState extends State<Users> {
                                                           ),
                                                         ),
                                                         insetAnimationDuration: const Duration(seconds: 1),
-                                                        insetAnimationCurve: Curves.fastOutSlowIn,
+                                                         insetAnimationCurve: Curves.fastOutSlowIn,
                                                         elevation: 2,
                                                         child: Container(
                                                           padding: const EdgeInsets.all(10),
@@ -2706,40 +2708,62 @@ class _UsersState extends State<Users> {
                                           "Mobile",
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
-                                        TextFormField(
-                                          controller: _mobileController,
-                                          style: const TextStyle(color: Colors.black),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: const EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: const BorderSide(
-                                                color: primaryColor,
+                                        Row(
+                                          children: [
+                                            Center(
+                                              child: CountryCodePicker(
+                                                onChanged: (value){
+                                                  phoneCode=value.dialCode!;
+                                                },
+                                                // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
+                                                initialSelection: 'PK',
+                                                favorite: ['+92','PK'],
+                                                // optional. Shows only country name and flag
+                                                showCountryOnly: false,
+                                                // optional. Shows only country name and flag when popup is closed.
+                                                showOnlyCountryWhenClosed: false,
+                                                // optional. aligns the flag and the Text left
+                                                alignLeft: false,
                                               ),
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: const BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: const BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                                          ),
+                                            Expanded(
+                                                child:TextFormField(
+                                                  controller: _mobileController,
+                                                  style: const TextStyle(color: Colors.black),
+                                                  validator: (value) {
+                                                    if (value == null || value.isEmpty) {
+                                                      return 'Please enter some text';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    contentPadding: const EdgeInsets.all(15),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(7.0),
+                                                      borderSide: const BorderSide(
+                                                        color: primaryColor,
+                                                      ),
+                                                    ),
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(7.0),
+                                                      borderSide: const BorderSide(
+                                                          color: primaryColor,
+                                                          width: 0.5
+                                                      ),
+                                                    ),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(7.0),
+                                                      borderSide: const BorderSide(
+                                                        color: primaryColor,
+                                                        width: 0.5,
+                                                      ),
+                                                    ),
+                                                    hintText: "",
+                                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                  ),
+                                                ),
+                                            )
+                                          ],
                                         ),
 
                                       ],
@@ -2794,8 +2818,8 @@ class _UsersState extends State<Users> {
                               ],
                             ),
                             const SizedBox(height: 20,),
-
-                            Column(
+                            //
+                            /*Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -2955,7 +2979,7 @@ class _UsersState extends State<Users> {
 
                                 ]
                             ),
-                            const SizedBox(height: 10,),
+                            const SizedBox(height: 10,),*/
                             InkWell(
                               onTap: ()async{
                                 if(_formKey.currentState!.validate()){
@@ -2979,7 +3003,7 @@ class _UsersState extends State<Users> {
                                         "fatherName":_fatherNameController.text,
                                         "dob":_dobController.text,
                                         "landline":_landlineController.text,
-                                        "mobile":_mobileController.text,
+                                        "mobile":'${phoneCode}${_mobileController.text}',
                                         "occupation":_occupationController.text,
                                         "jobDescription":_jobdesController.text,
                                         "additionalResponsibility":_addResController.text,
@@ -2989,7 +3013,7 @@ class _UsersState extends State<Users> {
                                         "additionalResponsibilityCode":additionalResponsibilityCode,
                                         "location":_locationController.text,
                                         "mainGroup":_mainGroupCodeController.text,
-                                        "mainGroupCode":mainGroupCode,
+                                         "mainGroupCode":mainGroupCode,
                                         "subGroup1":_subGroup1CodeController.text,
                                         "subGroup1Representative":sub1Representative,
                                         "subGroup1Code":subGroup1Code,

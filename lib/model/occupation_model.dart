@@ -12,6 +12,7 @@ class OccupationModel{
         code = map['code'];
 
 
+  OccupationModel(this.id, this.name, this.code, this.type, this.codeCount);
 
   OccupationModel.fromSnapshot(DocumentSnapshot snapshot )
       : this.fromMap(snapshot.data() as Map<String, dynamic>,snapshot.reference.id);

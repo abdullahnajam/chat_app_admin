@@ -14,6 +14,8 @@ class SubGroup3Model{
         code = map['code'];
 
 
+  SubGroup3Model(this.id, this.name, this.code, this.mainGroupCode,
+      this.subGroup1Code, this.subGroup2Code, this.codeCount);
 
   SubGroup3Model.fromSnapshot(DocumentSnapshot snapshot )
       : this.fromMap(snapshot.data() as Map<String, dynamic>,snapshot.reference.id);

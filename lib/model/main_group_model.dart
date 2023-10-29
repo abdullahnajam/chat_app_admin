@@ -10,6 +10,7 @@ class MainGroupModel{
         code = map['code'];
 
 
+  MainGroupModel(this.id, this.name, this.code);
 
   MainGroupModel.fromSnapshot(DocumentSnapshot snapshot )
       : this.fromMap(snapshot.data() as Map<String, dynamic>,snapshot.reference.id);

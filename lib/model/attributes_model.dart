@@ -11,6 +11,7 @@ class AttributeModel{
         code = map['code'];
 
 
+  AttributeModel(this.id, this.name, this.code, this.codeCount);
 
   AttributeModel.fromSnapshot(DocumentSnapshot snapshot )
       : this.fromMap(snapshot.data() as Map<String, dynamic>,snapshot.reference.id);

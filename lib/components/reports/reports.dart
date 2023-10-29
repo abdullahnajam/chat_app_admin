@@ -39,63 +39,7 @@ class _ReportsState extends State<Reports> {
                   flex: 5,
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "",
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
-                          Expanded(
-                            child: TypeAheadField(
-                              textFieldConfiguration: TextFieldConfiguration(
-                                decoration: InputDecoration(
-                                  border: const OutlineInputBorder(),
-                                  hintText: 'Search user by name',
-                                  fillColor: Colors.white,
-                                  filled: true,
 
-                                ),
-                              ),
-                              noItemsFoundBuilder: (context) {
-                                return ListTile(
-                                  leading: Icon(Icons.error),
-                                  title: Text("No Group Found"),
-                                );
-                              },
-                              suggestionsCallback: (pattern) async {
-
-                                List<UserModel> search=[];
-                                await FirebaseFirestore.instance
-                                    .collection('users')
-                                    .get()
-                                    .then((QuerySnapshot querySnapshot) {
-                                  querySnapshot.docs.forEach((doc) {
-                                    Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-                                    UserModel model=UserModel.fromMap(data, doc.reference.id);
-                                    if ("${model.name}".contains(pattern))
-                                      search.add(model);
-                                  });
-                                });
-
-                                return search;
-                              },
-                              itemBuilder: (context, UserModel suggestion) {
-                                return ListTile(
-                                  leading: Icon(Icons.people),
-                                  title: Text("${suggestion.name}"),
-                                  subtitle: Text(suggestion.email!),
-                                );
-                              },
-                              onSuggestionSelected: (UserModel suggestion) {
-                                CustomDialogs.showUserDataDialog(context, suggestion);
-
-                              },
-                            ),
-                          )
-
-                        ],
-                      ),
 
                       const SizedBox(height: defaultPadding),
                       const ReportList(),
