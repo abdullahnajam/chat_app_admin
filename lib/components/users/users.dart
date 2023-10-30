@@ -1,9 +1,15 @@
+import 'dart:convert';
 import 'dart:html';
+import 'dart:typed_data';
 import 'dart:ui' as UI;
 import 'package:chat_app_admin/components/users/users_list.dart';
+import 'package:chat_app_admin/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import '../../data/firebase_api.dart';
 import '../../model/attributes_model.dart';
 import '../../model/main_group_model.dart';
 import '../../model/occupation_model.dart';
@@ -187,7 +194,8 @@ class _UsersState extends State<Users> {
                                                 child: Container(
                                                   padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
@@ -264,58 +272,57 @@ class _UsersState extends State<Users> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      mainGroupCode=data['code'];
+                                                                      _mainGroupCodeController.text="${data['code']} - ${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return const Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return const Center(
-                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        mainGroupCode=data['code'];
-                                                                        _mainGroupCodeController.text="${data['code']} - ${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: const Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -392,7 +399,9 @@ class _UsersState extends State<Users> {
                                                 child: Container(
                                                   padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
@@ -469,58 +478,57 @@ class _UsersState extends State<Users> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: mainGroupCode).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: mainGroupCode).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            shrinkWrap: true,
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      subGroup1Code=data['code'];
+                                                                      _subGroup1CodeController.text="${data['code']} - ${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return const Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return const Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        subGroup1Code=data['code'];
-                                                                        _subGroup1CodeController.text="${data['code']} - ${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: const Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -596,8 +604,10 @@ class _UsersState extends State<Users> {
                                                 elevation: 2,
                                                 child: Container(
                                                   padding: const EdgeInsets.all(10),
+                                                  height: MediaQuery.of(context).size.height*0.7,
+
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
@@ -674,58 +684,57 @@ class _UsersState extends State<Users> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: subGroup1Code).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: subGroup1Code).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            shrinkWrap: true,
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      subGroup2Code=data['code'];
+                                                                      _subGroup2CodeController.text="${data['code']} - ${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return const Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return const Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        subGroup2Code=data['code'];
-                                                                        _subGroup2CodeController.text="${data['code']} - ${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: const Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -802,7 +811,8 @@ class _UsersState extends State<Users> {
                                                 child: Container(
                                                   padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
@@ -879,58 +889,57 @@ class _UsersState extends State<Users> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group3').where("subGroup2Code",isEqualTo: subGroup2Code).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group3').where("subGroup2Code",isEqualTo: subGroup2Code).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      subGroup3Code=data['code'];
+                                                                      _subGroup3CodeController.text="${data['code']} - ${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return const Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return const Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        subGroup3Code=data['code'];
-                                                                        _subGroup3CodeController.text="${data['code']} - ${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: const Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -1007,7 +1016,9 @@ class _UsersState extends State<Users> {
                                                 child: Container(
                                                   padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
@@ -1084,58 +1095,57 @@ class _UsersState extends State<Users> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group4').where("subGroup3Code",isEqualTo:subGroup3Code).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group4').where("subGroup3Code",isEqualTo:subGroup3Code).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      subGroup4Code=data['code'];
+                                                                      _subGroup4CodeController.text="${data['code']} - ${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return const Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return const Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        subGroup4Code=data['code'];
-                                                                        _subGroup4CodeController.text="${data['code']} - ${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: const Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -2179,7 +2189,8 @@ class _UsersState extends State<Users> {
                                                         child: Container(
                                                           padding: const EdgeInsets.all(10),
                                                           width: MediaQuery.of(context).size.width*0.3,
-                                                          child: Column(
+                                                          height: MediaQuery.of(context).size.height*0.7,
+                                                          child: ListView(
                                                             children: [
                                                               Container(
                                                                 height: 50,
@@ -2255,57 +2266,56 @@ class _UsersState extends State<Users> {
                                                                   },
                                                                 ),
                                                               ),
-                                                              Expanded(
-                                                                child: StreamBuilder<QuerySnapshot>(
-                                                                  stream: FirebaseFirestore.instance.collection('country').snapshots(),
-                                                                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                    if (snapshot.hasError) {
-                                                                      return Center(
-                                                                        child: Column(
-                                                                          children: [
-                                                                            Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                            const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                              StreamBuilder<QuerySnapshot>(
+                                                                stream: FirebaseFirestore.instance.collection('country').snapshots(),
+                                                                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                  if (snapshot.hasError) {
+                                                                    return Center(
+                                                                      child: Column(
+                                                                        children: [
+                                                                          Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                          const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                          ],
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                    return const Center(
+                                                                      child: CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                  if (snapshot.data!.size==0){
+                                                                    return const Center(
+                                                                        child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                    );
+
+                                                                  }
+
+                                                                  return ListView(
+                                                                    shrinkWrap: true,
+                                                                    physics: NeverScrollableScrollPhysics(),
+                                                                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                      return Padding(
+                                                                        padding: const EdgeInsets.only(top: 15.0),
+                                                                        child: ListTile(
+                                                                          onTap: (){
+                                                                            setState(() {
+                                                                              _countryController.text="${data['name']}";
+                                                                            });
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          leading: const Icon(Icons.people),
+                                                                          title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                          subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                         ),
                                                                       );
-                                                                    }
-
-                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                      return const Center(
-                                                                        child: CircularProgressIndicator(),
-                                                                      );
-                                                                    }
-                                                                    if (snapshot.data!.size==0){
-                                                                      return const Center(
-                                                                          child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                                      );
-
-                                                                    }
-
-                                                                    return ListView(
-                                                                      shrinkWrap: true,
-                                                                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                        return Padding(
-                                                                          padding: const EdgeInsets.only(top: 15.0),
-                                                                          child: ListTile(
-                                                                            onTap: (){
-                                                                              setState(() {
-                                                                                _countryController.text="${data['name']}";
-                                                                              });
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                            leading: const Icon(Icons.people),
-                                                                            title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                            subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                          ),
-                                                                        );
-                                                                      }).toList(),
-                                                                    );
-                                                                  },
-                                                                ),
+                                                                    }).toList(),
+                                                                  );
+                                                                },
                                                               ),
                                                             ],
                                                           ),
@@ -2383,7 +2393,8 @@ class _UsersState extends State<Users> {
                                                         child: Container(
                                                           padding: const EdgeInsets.all(10),
                                                           width: MediaQuery.of(context).size.width*0.3,
-                                                          child: Column(
+                                                          height: MediaQuery.of(context).size.height*0.7,
+                                                          child: ListView(
                                                             children: [
                                                               Container(
                                                                 height: 50,
@@ -2459,57 +2470,56 @@ class _UsersState extends State<Users> {
                                                                   },
                                                                 ),
                                                               ),
-                                                              Expanded(
-                                                                child: StreamBuilder<QuerySnapshot>(
-                                                                  stream: FirebaseFirestore.instance.collection('location').snapshots(),
-                                                                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                    if (snapshot.hasError) {
-                                                                      return Center(
-                                                                        child: Column(
-                                                                          children: [
-                                                                            Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                            const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                              StreamBuilder<QuerySnapshot>(
+                                                                stream: FirebaseFirestore.instance.collection('location').snapshots(),
+                                                                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                                  if (snapshot.hasError) {
+                                                                    return Center(
+                                                                      child: Column(
+                                                                        children: [
+                                                                          Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                          const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                          ],
+                                                                        ],
+                                                                      ),
+                                                                    );
+                                                                  }
+
+                                                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                    return const Center(
+                                                                      child: CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                  if (snapshot.data!.size==0){
+                                                                    return const Center(
+                                                                        child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                                    );
+
+                                                                  }
+
+                                                                  return ListView(
+                                                                    shrinkWrap: true,
+                                                                    physics: NeverScrollableScrollPhysics(),
+                                                                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                      return Padding(
+                                                                        padding: const EdgeInsets.only(top: 15.0),
+                                                                        child: ListTile(
+                                                                          onTap: (){
+                                                                            setState(() {
+                                                                              _locationController.text="${data['name']}";
+                                                                            });
+                                                                            Navigator.pop(context);
+                                                                          },
+                                                                          leading: const Icon(Icons.people),
+                                                                          title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                          subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                         ),
                                                                       );
-                                                                    }
-
-                                                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                      return const Center(
-                                                                        child: CircularProgressIndicator(),
-                                                                      );
-                                                                    }
-                                                                    if (snapshot.data!.size==0){
-                                                                      return const Center(
-                                                                          child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                                      );
-
-                                                                    }
-
-                                                                    return ListView(
-                                                                      shrinkWrap: true,
-                                                                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                        return Padding(
-                                                                          padding: const EdgeInsets.only(top: 15.0),
-                                                                          child: ListTile(
-                                                                            onTap: (){
-                                                                              setState(() {
-                                                                                _locationController.text="${data['name']}";
-                                                                              });
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                            leading: const Icon(Icons.people),
-                                                                            title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
-                                                                            subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
-                                                                          ),
-                                                                        );
-                                                                      }).toList(),
-                                                                    );
-                                                                  },
-                                                                ),
+                                                                    }).toList(),
+                                                                  );
+                                                                },
                                                               ),
                                                             ],
                                                           ),
@@ -3126,12 +3136,9 @@ class _UsersState extends State<Users> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "",
-                            style: Theme.of(context).textTheme.subtitle1,
-                          ),
+
                           ElevatedButton.icon(
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.symmetric(
@@ -3145,6 +3152,138 @@ class _UsersState extends State<Users> {
                             },
                             icon: const Icon(Icons.add),
                             label: const Text("Add User"),
+                          ),
+                          SizedBox(width: 10,),
+                          /*ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              var picked = await FilePicker.platform.pickFiles(allowedExtensions: ['csv'],type: FileType.custom);
+
+                              if (picked != null) {
+                                print(picked.files.first.name);
+                                List<int> bytes = picked.files.first.bytes!;
+                                String csvString = String.fromCharCodes(bytes);
+                                List<List<dynamic>> parsedCSV = CsvToListConverter().convert(csvString);
+                                print('pl ${parsedCSV}');
+                                List<OccupationModel> list=[];
+                                parsedCSV.forEach((element) {
+                                  OccupationModel model=OccupationModel(
+                                      '',
+                                      element[1].toString(),
+                                      '',
+                                      element[2].toString(),
+                                      0
+
+                                  );
+                                  //if(coaches.length<10)
+                                  list.add(model);
+
+                                });
+                                for (var element in list) {
+                                  if (element.name!='Name') {
+                                    int count=0;
+                                    await FirebaseFirestore.instance.collection('occupation')
+                                        .orderBy("codeCount",descending: false)
+                                        .get().then((QuerySnapshot querySnapshot) {
+                                      querySnapshot.docs.forEach((doc) {
+                                        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+                                        print("code count ${data['codeCount']}");
+                                        count=data['codeCount'];
+                                      });
+                                    });
+                                    count+=1;
+                                    String subCode="";
+                                    if(count.toString().length==1){
+                                      subCode="00${count}";
+                                    }
+                                    else if(count.toString().length==2){
+                                      subCode="0${count}";
+                                    }
+                                    else{
+                                      subCode="${count}";
+                                    }
+                                    await FirebaseFirestore.instance.collection('occupation').add({
+                                      "code":subCode,
+                                      "codeCount":count,
+                                      "name":element.name,
+                                      "type":element.type,
+                                      "status":"Active",
+                                      "createdAt":DateTime.now().millisecondsSinceEpoch,
+                                    });
+                                  }
+
+
+                                }
+
+
+
+                              }
+
+                            },
+                            icon: const Icon(Icons.upload),
+                            label: const Text("Import"),
+                          ),
+                          SizedBox(width: 10,),*/
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical:
+                                defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: ()async {
+                              List<String> rowHeader = ["Display Name","Name",'Father Name','Email','Mobile','Landline','Company','DOB','Occupation','City','Country','Gender'
+                                ,'Main Group','Sub Group 1','Sub Group 2','Sub Group 3','Sub Group 4'
+                                ,'Sub Group 1 Representative','Sub Group 2 Representative','Sub Group 3 Representative','Sub Group 4 Representative'];
+                              List<List<dynamic>> rows = [];
+                              List<UserModel> list=await FirebaseApi.getAllUsers();
+                              rows.add(rowHeader);
+                              for(int i=0;i<list.length;i++){
+                                List<dynamic> dataRow=[];
+                                dataRow.add(list[i].displayName);
+                                dataRow.add(list[i].name);
+                                dataRow.add(list[i].fatherName);
+                                dataRow.add(list[i].email);
+                                dataRow.add(list[i].mobile);
+                                dataRow.add(list[i].landline);
+                                dataRow.add(list[i].companyName);
+                                dataRow.add(list[i].dob);
+                                dataRow.add(list[i].occupation);
+                                dataRow.add(list[i].location);
+                                dataRow.add(list[i].country);
+                                dataRow.add(list[i].gender);
+                                dataRow.add(list[i].mainGroup);
+                                dataRow.add(list[i].subGroup1);
+                                dataRow.add(list[i].subGroup2);
+                                dataRow.add(list[i].subGroup3);
+                                dataRow.add(list[i].subGroup4);
+                                dataRow.add(list[i].subGroup1Representative);
+                                dataRow.add(list[i].subGroup2Representative);
+                                dataRow.add(list[i].subGroup3Representative);
+                                dataRow.add(list[i].subGroup4Representative);
+                                rows.add(dataRow);
+                              }
+                              String csv = const ListToCsvConverter().convert(rows);
+                              Uint8List bytes = Uint8List.fromList(utf8.encode(csv));
+
+                              await FileSaver.instance.saveFile(
+                                name: 'occupations',
+                                bytes: bytes,
+                                ext: 'csv',
+                                mimeType: MimeType.csv,
+                              );
+
+
+                            },
+                            icon: const Icon(Icons.download),
+                            label: const Text("Export"),
                           ),
                         ],
                       ),

@@ -37,6 +37,19 @@ class FirebaseApi{
     return list;
 
   }
+  static Future<List<UserModel>> getAllUsers()async{
+    List<UserModel> list=[];
+    await FirebaseFirestore.instance.collection('users').get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) async{
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        UserModel model=UserModel.fromMap(data, doc.reference.id);
+        list.add(model);
+
+      });
+    });
+    return list;
+
+  }
   static Future<List<SubGroup4Model>> getAllSubgroup4()async{
     List<SubGroup4Model> list=[];
     await FirebaseFirestore.instance.collection('sub_group4').get().then((QuerySnapshot querySnapshot) {
