@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "chatappadminpanel-v16",
+    "site": "chatappadminpanel-v17",
     "public": "build/web",
     "ignore": [
       "firebase.json",

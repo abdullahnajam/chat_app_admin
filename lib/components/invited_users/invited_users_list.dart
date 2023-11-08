@@ -3,6 +3,7 @@ import 'dart:ui' as UI;
 import 'package:chat_app_admin/model/invited_user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
     _addResController.text=model.additionalResponsibility;
 
     bool referer=model.referer;
-
+    String phoneCode='+92';
     _nameController.text=model.name;
     _emailController.text=model.email;
     _mobileController.text=model.mobile;
@@ -68,8 +69,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -88,7 +89,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: primaryColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
@@ -100,16 +101,16 @@ class _InvitedUserListState extends State<InvitedUserList> {
                           Align(
                             alignment: Alignment.center,
                             child: Container(
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
                               child: Text("EDIT USER",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                             ),
                           ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Container(
-                              padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                              padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                               child: InkWell(
-                                child: CircleAvatar(
+                                child: const CircleAvatar(
                                   radius: 20,
                                   backgroundColor: Colors.white,
                                   child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -125,14 +126,14 @@ class _InvitedUserListState extends State<InvitedUserList> {
                       child: Form(
                         key: _formKey,
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("Group Details",style: Theme.of(context).textTheme.headline6!.apply(color: Colors.black),),
-                                SizedBox(height: 30,),
+                                const SizedBox(height: 30,),
 
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -143,7 +144,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                       style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                     ),
                                     TextFormField(
-                                      style: TextStyle(color: Colors.black),
+                                      style: const TextStyle(color: Colors.black),
                                       validator: (value) {
 
                                         if (value == null || value.isEmpty) {
@@ -160,8 +161,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                               return StatefulBuilder(
                                                 builder: (context,setState){
                                                   return Dialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: const BorderRadius.all(
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(
                                                         Radius.circular(10.0),
                                                       ),
                                                     ),
@@ -169,35 +170,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                     insetAnimationCurve: Curves.fastOutSlowIn,
                                                     elevation: 2,
                                                     child: Container(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding: const EdgeInsets.all(10),
                                                       width: MediaQuery.of(context).size.width*0.3,
-                                                      child: Column(
+                                                      height: MediaQuery.of(context).size.height*0.7,
+                                                      child: ListView(
                                                         children: [
                                                           Container(
                                                             height: 50,
-                                                            margin: EdgeInsets.all(10),
+                                                            margin: const EdgeInsets.all(10),
                                                             child: TypeAheadField(
                                                               textFieldConfiguration: TextFieldConfiguration(
 
 
                                                                 decoration: InputDecoration(
-                                                                  contentPadding: EdgeInsets.all(15),
+                                                                  contentPadding: const EdgeInsets.all(15),
                                                                   focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                     ),
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                         color: Colors.transparent,
                                                                         width: 0.5
                                                                     ),
                                                                   ),
                                                                   border: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                       width: 0.5,
                                                                     ),
@@ -211,7 +213,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                 ),
                                                               ),
                                                               noItemsFoundBuilder: (context) {
-                                                                return ListTile(
+                                                                return const ListTile(
                                                                   leading: Icon(Icons.error),
                                                                   title: Text("No Group Found"),
                                                                 );
@@ -226,7 +228,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                   querySnapshot.docs.forEach((doc) {
                                                                     Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                     MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                    if ("${model.code}".contains(pattern))
+                                                                    if (model.code.contains(pattern))
                                                                       search.add(model);
                                                                   });
                                                                 });
@@ -235,8 +237,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                               itemBuilder: (context, MainGroupModel suggestion) {
                                                                 return ListTile(
-                                                                  leading: Icon(Icons.people),
-                                                                  title: Text("${suggestion.name}"),
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text(suggestion.name),
                                                                   subtitle: Text(suggestion.code),
                                                                 );
                                                               },
@@ -248,58 +250,57 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: StreamBuilder<QuerySnapshot>(
-                                                              stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
-                                                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                if (snapshot.hasError) {
-                                                                  return Center(
-                                                                    child: Column(
-                                                                      children: [
-                                                                        Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                        Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                          StreamBuilder<QuerySnapshot>(
+                                                            stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                              if (snapshot.hasError) {
+                                                                return Center(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                      const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                return const Center(
+                                                                  child: CircularProgressIndicator(),
+                                                                );
+                                                              }
+                                                              if (snapshot.data!.size==0){
+                                                                return const Center(
+                                                                    child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                                );
+
+                                                              }
+
+                                                              return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                  return Padding(
+                                                                    padding: const EdgeInsets.only(top: 15.0),
+                                                                    child: ListTile(
+                                                                      onTap: (){
+                                                                        setState(() {
+                                                                          mainGroupCode=data['code'];
+                                                                          _mainGroupCodeController.text="${data['code']} - ${data['name']}";
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      leading: const Icon(Icons.people),
+                                                                      title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                      subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                  return Center(
-                                                                    child: CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                                if (snapshot.data!.size==0){
-                                                                  return Center(
-                                                                      child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
-                                                                  );
-
-                                                                }
-
-                                                                return new ListView(
-                                                                  shrinkWrap: true,
-                                                                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                    return new Padding(
-                                                                      padding: const EdgeInsets.only(top: 15.0),
-                                                                      child: ListTile(
-                                                                        onTap: (){
-                                                                          setState(() {
-                                                                            mainGroupCode=data['code'];
-                                                                            _mainGroupCodeController.text="${data['code']} - ${data['name']}";
-                                                                          });
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        leading: Icon(Icons.people),
-                                                                        title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                        subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                      ),
-                                                                    );
-                                                                  }).toList(),
-                                                                );
-                                                              },
-                                                            ),
+                                                                }).toList(),
+                                                              );
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -311,23 +312,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         );
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
+                                        contentPadding: const EdgeInsets.all(15),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                               color: primaryColor,
                                               width: 0.5
                                           ),
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                             width: 0.5,
                                           ),
@@ -339,7 +340,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                                   ],
                                 ),
-                                SizedBox(height: 20,),
+                                const SizedBox(height: 20,),
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,7 +350,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                       style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                     ),
                                     TextFormField(
-                                      style: TextStyle(color: Colors.black),
+                                      style: const TextStyle(color: Colors.black),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter some text';
@@ -365,8 +366,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                               return StatefulBuilder(
                                                 builder: (context,setState){
                                                   return Dialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: const BorderRadius.all(
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(
                                                         Radius.circular(10.0),
                                                       ),
                                                     ),
@@ -374,35 +375,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                     insetAnimationCurve: Curves.fastOutSlowIn,
                                                     elevation: 2,
                                                     child: Container(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding: const EdgeInsets.all(10),
                                                       width: MediaQuery.of(context).size.width*0.3,
-                                                      child: Column(
+                                                      height: MediaQuery.of(context).size.height*0.7,
+                                                      child: ListView(
                                                         children: [
                                                           Container(
                                                             height: 50,
-                                                            margin: EdgeInsets.all(10),
+                                                            margin: const EdgeInsets.all(10),
                                                             child: TypeAheadField(
                                                               textFieldConfiguration: TextFieldConfiguration(
 
 
                                                                 decoration: InputDecoration(
-                                                                  contentPadding: EdgeInsets.all(15),
+                                                                  contentPadding: const EdgeInsets.all(15),
                                                                   focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                     ),
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                         color: Colors.transparent,
                                                                         width: 0.5
                                                                     ),
                                                                   ),
                                                                   border: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                       width: 0.5,
                                                                     ),
@@ -416,7 +418,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                 ),
                                                               ),
                                                               noItemsFoundBuilder: (context) {
-                                                                return ListTile(
+                                                                return const ListTile(
                                                                   leading: Icon(Icons.error),
                                                                   title: Text("No Group Found"),
                                                                 );
@@ -431,7 +433,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                   querySnapshot.docs.forEach((doc) {
                                                                     Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                     MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                    if ("${model.code}".contains(pattern))
+                                                                    if (model.code.contains(pattern))
                                                                       search.add(model);
                                                                   });
                                                                 });
@@ -440,8 +442,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                               itemBuilder: (context, MainGroupModel suggestion) {
                                                                 return ListTile(
-                                                                  leading: Icon(Icons.people),
-                                                                  title: Text("${suggestion.name}"),
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text(suggestion.name),
                                                                   subtitle: Text(suggestion.code),
                                                                 );
                                                               },
@@ -453,58 +455,57 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: StreamBuilder<QuerySnapshot>(
-                                                              stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: mainGroupCode).snapshots(),
-                                                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                if (snapshot.hasError) {
-                                                                  return Center(
-                                                                    child: Column(
-                                                                      children: [
-                                                                        Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                        Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                          StreamBuilder<QuerySnapshot>(
+                                                            stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: mainGroupCode).snapshots(),
+                                                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                              if (snapshot.hasError) {
+                                                                return Center(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                      const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                return const Center(
+                                                                  child: CircularProgressIndicator(),
+                                                                );
+                                                              }
+                                                              if (snapshot.data!.size==0){
+                                                                return const Center(
+                                                                    child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                                );
+
+                                                              }
+
+                                                              return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                  return Padding(
+                                                                    padding: const EdgeInsets.only(top: 15.0),
+                                                                    child: ListTile(
+                                                                      onTap: (){
+                                                                        setState(() {
+                                                                          subGroup1Code=data['code'];
+                                                                          _subGroup1CodeController.text="${data['code']} - ${data['name']}";
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      leading: const Icon(Icons.people),
+                                                                      title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                      subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                  return Center(
-                                                                    child: CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                                if (snapshot.data!.size==0){
-                                                                  return Center(
-                                                                      child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                                  );
-
-                                                                }
-
-                                                                return new ListView(
-                                                                  shrinkWrap: true,
-                                                                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                    return new Padding(
-                                                                      padding: const EdgeInsets.only(top: 15.0),
-                                                                      child: ListTile(
-                                                                        onTap: (){
-                                                                          setState(() {
-                                                                            subGroup1Code=data['code'];
-                                                                            _subGroup1CodeController.text="${data['code']} - ${data['name']}";
-                                                                          });
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        leading: Icon(Icons.people),
-                                                                        title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                        subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                      ),
-                                                                    );
-                                                                  }).toList(),
-                                                                );
-                                                              },
-                                                            ),
+                                                                }).toList(),
+                                                              );
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -516,23 +517,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         );
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
+                                        contentPadding: const EdgeInsets.all(15),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                               color: primaryColor,
                                               width: 0.5
                                           ),
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                             width: 0.5,
                                           ),
@@ -544,7 +545,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                                   ],
                                 ),
-                                SizedBox(height: 20,),
+                                const SizedBox(height: 20,),
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,7 +555,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                       style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                     ),
                                     TextFormField(
-                                      style: TextStyle(color: Colors.black),
+                                      style: const TextStyle(color: Colors.black),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter some text';
@@ -570,8 +571,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                               return StatefulBuilder(
                                                 builder: (context,setState){
                                                   return Dialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: const BorderRadius.all(
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(
                                                         Radius.circular(10.0),
                                                       ),
                                                     ),
@@ -579,35 +580,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                     insetAnimationCurve: Curves.fastOutSlowIn,
                                                     elevation: 2,
                                                     child: Container(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding: const EdgeInsets.all(10),
                                                       width: MediaQuery.of(context).size.width*0.3,
-                                                      child: Column(
+                                                      height: MediaQuery.of(context).size.height*0.7,
+                                                      child: ListView(
                                                         children: [
                                                           Container(
                                                             height: 50,
-                                                            margin: EdgeInsets.all(10),
+                                                            margin: const EdgeInsets.all(10),
                                                             child: TypeAheadField(
                                                               textFieldConfiguration: TextFieldConfiguration(
 
 
                                                                 decoration: InputDecoration(
-                                                                  contentPadding: EdgeInsets.all(15),
+                                                                  contentPadding: const EdgeInsets.all(15),
                                                                   focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                     ),
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                         color: Colors.transparent,
                                                                         width: 0.5
                                                                     ),
                                                                   ),
                                                                   border: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                       width: 0.5,
                                                                     ),
@@ -621,7 +623,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                 ),
                                                               ),
                                                               noItemsFoundBuilder: (context) {
-                                                                return ListTile(
+                                                                return const ListTile(
                                                                   leading: Icon(Icons.error),
                                                                   title: Text("No Group Found"),
                                                                 );
@@ -636,7 +638,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                   querySnapshot.docs.forEach((doc) {
                                                                     Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                     MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                    if ("${model.code}".contains(pattern))
+                                                                    if (model.code.contains(pattern))
                                                                       search.add(model);
                                                                   });
                                                                 });
@@ -645,8 +647,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                               itemBuilder: (context, MainGroupModel suggestion) {
                                                                 return ListTile(
-                                                                  leading: Icon(Icons.people),
-                                                                  title: Text("${suggestion.name}"),
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text(suggestion.name),
                                                                   subtitle: Text(suggestion.code),
                                                                 );
                                                               },
@@ -658,58 +660,57 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: StreamBuilder<QuerySnapshot>(
-                                                              stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: subGroup1Code).snapshots(),
-                                                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                if (snapshot.hasError) {
-                                                                  return Center(
-                                                                    child: Column(
-                                                                      children: [
-                                                                        Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                        Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                          StreamBuilder<QuerySnapshot>(
+                                                            stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: subGroup1Code).snapshots(),
+                                                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                              if (snapshot.hasError) {
+                                                                return Center(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                      const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                return const Center(
+                                                                  child: CircularProgressIndicator(),
+                                                                );
+                                                              }
+                                                              if (snapshot.data!.size==0){
+                                                                return const Center(
+                                                                    child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                                );
+
+                                                              }
+
+                                                              return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                  return Padding(
+                                                                    padding: const EdgeInsets.only(top: 15.0),
+                                                                    child: ListTile(
+                                                                      onTap: (){
+                                                                        setState(() {
+                                                                          subGroup2Code=data['code'];
+                                                                          _subGroup2CodeController.text="${data['code']} - ${data['name']}";
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      leading: const Icon(Icons.people),
+                                                                      title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                      subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                  return Center(
-                                                                    child: CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                                if (snapshot.data!.size==0){
-                                                                  return Center(
-                                                                      child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                                  );
-
-                                                                }
-
-                                                                return new ListView(
-                                                                  shrinkWrap: true,
-                                                                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                    return new Padding(
-                                                                      padding: const EdgeInsets.only(top: 15.0),
-                                                                      child: ListTile(
-                                                                        onTap: (){
-                                                                          setState(() {
-                                                                            subGroup2Code=data['code'];
-                                                                            _subGroup2CodeController.text="${data['code']} - ${data['name']}";
-                                                                          });
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        leading: Icon(Icons.people),
-                                                                        title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                        subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                      ),
-                                                                    );
-                                                                  }).toList(),
-                                                                );
-                                                              },
-                                                            ),
+                                                                }).toList(),
+                                                              );
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -721,23 +722,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         );
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
+                                        contentPadding: const EdgeInsets.all(15),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                               color: primaryColor,
                                               width: 0.5
                                           ),
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                             width: 0.5,
                                           ),
@@ -749,7 +750,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                                   ],
                                 ),
-                                SizedBox(height: 20,),
+                                const SizedBox(height: 20,),
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -759,7 +760,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                       style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                     ),
                                     TextFormField(
-                                      style: TextStyle(color: Colors.black),
+                                      style: const TextStyle(color: Colors.black),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter some text';
@@ -775,8 +776,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                               return StatefulBuilder(
                                                 builder: (context,setState){
                                                   return Dialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: const BorderRadius.all(
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(
                                                         Radius.circular(10.0),
                                                       ),
                                                     ),
@@ -784,35 +785,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                     insetAnimationCurve: Curves.fastOutSlowIn,
                                                     elevation: 2,
                                                     child: Container(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding: const EdgeInsets.all(10),
                                                       width: MediaQuery.of(context).size.width*0.3,
-                                                      child: Column(
+                                                      height: MediaQuery.of(context).size.height*0.7,
+                                                      child: ListView(
                                                         children: [
                                                           Container(
                                                             height: 50,
-                                                            margin: EdgeInsets.all(10),
+                                                            margin: const EdgeInsets.all(10),
                                                             child: TypeAheadField(
                                                               textFieldConfiguration: TextFieldConfiguration(
 
 
                                                                 decoration: InputDecoration(
-                                                                  contentPadding: EdgeInsets.all(15),
+                                                                  contentPadding: const EdgeInsets.all(15),
                                                                   focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                     ),
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                         color: Colors.transparent,
                                                                         width: 0.5
                                                                     ),
                                                                   ),
                                                                   border: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                       width: 0.5,
                                                                     ),
@@ -826,7 +828,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                 ),
                                                               ),
                                                               noItemsFoundBuilder: (context) {
-                                                                return ListTile(
+                                                                return const ListTile(
                                                                   leading: Icon(Icons.error),
                                                                   title: Text("No Group Found"),
                                                                 );
@@ -841,7 +843,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                   querySnapshot.docs.forEach((doc) {
                                                                     Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                     MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                    if ("${model.code}".contains(pattern))
+                                                                    if (model.code.contains(pattern))
                                                                       search.add(model);
                                                                   });
                                                                 });
@@ -850,8 +852,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                               itemBuilder: (context, MainGroupModel suggestion) {
                                                                 return ListTile(
-                                                                  leading: Icon(Icons.people),
-                                                                  title: Text("${suggestion.name}"),
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text(suggestion.name),
                                                                   subtitle: Text(suggestion.code),
                                                                 );
                                                               },
@@ -863,58 +865,57 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: StreamBuilder<QuerySnapshot>(
-                                                              stream: FirebaseFirestore.instance.collection('sub_group3').where("subGroup2Code",isEqualTo: subGroup2Code).snapshots(),
-                                                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                if (snapshot.hasError) {
-                                                                  return Center(
-                                                                    child: Column(
-                                                                      children: [
-                                                                        Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                        Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                          StreamBuilder<QuerySnapshot>(
+                                                            stream: FirebaseFirestore.instance.collection('sub_group3').where("subGroup2Code",isEqualTo: subGroup2Code).snapshots(),
+                                                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                              if (snapshot.hasError) {
+                                                                return Center(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                      const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                return const Center(
+                                                                  child: CircularProgressIndicator(),
+                                                                );
+                                                              }
+                                                              if (snapshot.data!.size==0){
+                                                                return const Center(
+                                                                    child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                                );
+
+                                                              }
+
+                                                              return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                  return Padding(
+                                                                    padding: const EdgeInsets.only(top: 15.0),
+                                                                    child: ListTile(
+                                                                      onTap: (){
+                                                                        setState(() {
+                                                                          subGroup3Code=data['code'];
+                                                                          _subGroup3CodeController.text="${data['code']} - ${data['name']}";
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      leading: const Icon(Icons.people),
+                                                                      title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                      subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                  return Center(
-                                                                    child: CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                                if (snapshot.data!.size==0){
-                                                                  return Center(
-                                                                      child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                                  );
-
-                                                                }
-
-                                                                return new ListView(
-                                                                  shrinkWrap: true,
-                                                                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                    return new Padding(
-                                                                      padding: const EdgeInsets.only(top: 15.0),
-                                                                      child: ListTile(
-                                                                        onTap: (){
-                                                                          setState(() {
-                                                                            subGroup3Code=data['code'];
-                                                                            _subGroup3CodeController.text="${data['code']} - ${data['name']}";
-                                                                          });
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        leading: Icon(Icons.people),
-                                                                        title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                        subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                      ),
-                                                                    );
-                                                                  }).toList(),
-                                                                );
-                                                              },
-                                                            ),
+                                                                }).toList(),
+                                                              );
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -926,23 +927,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         );
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
+                                        contentPadding: const EdgeInsets.all(15),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                               color: primaryColor,
                                               width: 0.5
                                           ),
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                             width: 0.5,
                                           ),
@@ -954,7 +955,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                                   ],
                                 ),
-                                SizedBox(height: 20,),
+                                const SizedBox(height: 20,),
                                 Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -964,7 +965,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                       style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                     ),
                                     TextFormField(
-                                      style: TextStyle(color: Colors.black),
+                                      style: const TextStyle(color: Colors.black),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter some text';
@@ -980,8 +981,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                               return StatefulBuilder(
                                                 builder: (context,setState){
                                                   return Dialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: const BorderRadius.all(
+                                                    shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.all(
                                                         Radius.circular(10.0),
                                                       ),
                                                     ),
@@ -989,35 +990,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                     insetAnimationCurve: Curves.fastOutSlowIn,
                                                     elevation: 2,
                                                     child: Container(
-                                                      padding: EdgeInsets.all(10),
+                                                      padding: const EdgeInsets.all(10),
                                                       width: MediaQuery.of(context).size.width*0.3,
-                                                      child: Column(
+                                                      height: MediaQuery.of(context).size.height*0.7,
+                                                      child: ListView(
                                                         children: [
                                                           Container(
                                                             height: 50,
-                                                            margin: EdgeInsets.all(10),
+                                                            margin: const EdgeInsets.all(10),
                                                             child: TypeAheadField(
                                                               textFieldConfiguration: TextFieldConfiguration(
 
 
                                                                 decoration: InputDecoration(
-                                                                  contentPadding: EdgeInsets.all(15),
+                                                                  contentPadding: const EdgeInsets.all(15),
                                                                   focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                     ),
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                         color: Colors.transparent,
                                                                         width: 0.5
                                                                     ),
                                                                   ),
                                                                   border: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(7.0),
-                                                                    borderSide: BorderSide(
+                                                                    borderSide: const BorderSide(
                                                                       color: Colors.transparent,
                                                                       width: 0.5,
                                                                     ),
@@ -1031,7 +1033,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                 ),
                                                               ),
                                                               noItemsFoundBuilder: (context) {
-                                                                return ListTile(
+                                                                return const ListTile(
                                                                   leading: Icon(Icons.error),
                                                                   title: Text("No Group Found"),
                                                                 );
@@ -1046,7 +1048,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                                   querySnapshot.docs.forEach((doc) {
                                                                     Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                     MainGroupModel model=MainGroupModel.fromMap(data, doc.reference.id);
-                                                                    if ("${model.code}".contains(pattern))
+                                                                    if (model.code.contains(pattern))
                                                                       search.add(model);
                                                                   });
                                                                 });
@@ -1055,8 +1057,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                               itemBuilder: (context, MainGroupModel suggestion) {
                                                                 return ListTile(
-                                                                  leading: Icon(Icons.people),
-                                                                  title: Text("${suggestion.name}"),
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text(suggestion.name),
                                                                   subtitle: Text(suggestion.code),
                                                                 );
                                                               },
@@ -1068,58 +1070,57 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               },
                                                             ),
                                                           ),
-                                                          Expanded(
-                                                            child: StreamBuilder<QuerySnapshot>(
-                                                              stream: FirebaseFirestore.instance.collection('sub_group4').where("subGroup3Code",isEqualTo:subGroup3Code).snapshots(),
-                                                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                                if (snapshot.hasError) {
-                                                                  return Center(
-                                                                    child: Column(
-                                                                      children: [
-                                                                        Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                        Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                          StreamBuilder<QuerySnapshot>(
+                                                            stream: FirebaseFirestore.instance.collection('sub_group4').where("subGroup3Code",isEqualTo:subGroup3Code).snapshots(),
+                                                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                              if (snapshot.hasError) {
+                                                                return Center(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                      const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                      ],
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              }
+
+                                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                                return const Center(
+                                                                  child: CircularProgressIndicator(),
+                                                                );
+                                                              }
+                                                              if (snapshot.data!.size==0){
+                                                                return const Center(
+                                                                    child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                                );
+
+                                                              }
+
+                                                              return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                                  return Padding(
+                                                                    padding: const EdgeInsets.only(top: 15.0),
+                                                                    child: ListTile(
+                                                                      onTap: (){
+                                                                        setState(() {
+                                                                          subGroup4Code=data['code'];
+                                                                          _subGroup4CodeController.text="${data['code']} - ${data['name']}";
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      leading: const Icon(Icons.people),
+                                                                      title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                      subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                     ),
                                                                   );
-                                                                }
-
-                                                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                                                  return Center(
-                                                                    child: CircularProgressIndicator(),
-                                                                  );
-                                                                }
-                                                                if (snapshot.data!.size==0){
-                                                                  return Center(
-                                                                      child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                                  );
-
-                                                                }
-
-                                                                return new ListView(
-                                                                  shrinkWrap: true,
-                                                                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                    return new Padding(
-                                                                      padding: const EdgeInsets.only(top: 15.0),
-                                                                      child: ListTile(
-                                                                        onTap: (){
-                                                                          setState(() {
-                                                                            subGroup4Code=data['code'];
-                                                                            _subGroup4CodeController.text="${data['code']} - ${data['name']}";
-                                                                          });
-                                                                          Navigator.pop(context);
-                                                                        },
-                                                                        leading: Icon(Icons.people),
-                                                                        title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                        subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                      ),
-                                                                    );
-                                                                  }).toList(),
-                                                                );
-                                                              },
-                                                            ),
+                                                                }).toList(),
+                                                              );
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -1131,23 +1132,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         );
                                       },
                                       decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(15),
+                                        contentPadding: const EdgeInsets.all(15),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                           ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                               color: primaryColor,
                                               width: 0.5
                                           ),
                                         ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(7.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: primaryColor,
                                             width: 0.5,
                                           ),
@@ -1159,14 +1160,14 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                                   ],
                                 ),
-                                SizedBox(height: 20,),
+                                const SizedBox(height: 20,),
                                 Text(
                                   "Name",
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
                                   controller: _nameController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -1174,23 +1175,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1202,7 +1203,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1213,7 +1214,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                 ),
                                 TextFormField(
                                   controller: _emailController,
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -1221,23 +1222,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                     return null;
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1249,13 +1250,13 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Row(
                               children: [
                                 Expanded(
                                   flex: 1,
                                   child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
+                                    padding: const EdgeInsets.only(right: 10),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1264,40 +1265,62 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                           "Mobile",
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
-                                        TextFormField(
-                                          controller: _mobileController,
-                                          style: TextStyle(color: Colors.black),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Please enter some text';
-                                            }
-                                            return null;
-                                          },
-                                          decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.all(15),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
+                                        Row(
+                                          children: [
+                                            Center(
+                                              child: CountryCodePicker(
+                                                onChanged: (value){
+                                                  phoneCode=value.dialCode!;
+                                                },
+                                                // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
+                                                initialSelection: 'PK',
+                                                favorite: ['+92','PK'],
+                                                // optional. Shows only country name and flag
+                                                showCountryOnly: false,
+                                                // optional. Shows only country name and flag when popup is closed.
+                                                showOnlyCountryWhenClosed: false,
+                                                // optional. aligns the flag and the Text left
+                                                alignLeft: false,
                                               ),
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                  color: primaryColor,
-                                                  width: 0.5
+                                            Expanded(
+                                              child:TextFormField(
+                                                controller: _mobileController,
+                                                style: const TextStyle(color: Colors.black),
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please enter some text';
+                                                  }
+                                                  return null;
+                                                },
+                                                decoration: InputDecoration(
+                                                  contentPadding: const EdgeInsets.all(15),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(7.0),
+                                                    borderSide: const BorderSide(
+                                                      color: primaryColor,
+                                                    ),
+                                                  ),
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(7.0),
+                                                    borderSide: const BorderSide(
+                                                        color: primaryColor,
+                                                        width: 0.5
+                                                    ),
+                                                  ),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(7.0),
+                                                    borderSide: const BorderSide(
+                                                      color: primaryColor,
+                                                      width: 0.5,
+                                                    ),
+                                                  ),
+                                                  hintText: "",
+                                                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                                                ),
                                               ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(7.0),
-                                              borderSide: BorderSide(
-                                                color: primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            hintText: "",
-                                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                                          ),
+                                            )
+                                          ],
                                         ),
 
                                       ],
@@ -1307,7 +1330,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                 Expanded(
                                   flex: 1,
                                   child: Padding(
-                                    padding: EdgeInsets.only(right: 10),
+                                    padding: const EdgeInsets.only(right: 10),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1317,7 +1340,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                           style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.only(left: 5,right: 5),
+                                          padding: const EdgeInsets.only(left: 5,right: 5),
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(7),
                                               border:Border.all(color: primaryColor)
@@ -1351,7 +1374,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                 )
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1361,7 +1384,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
 
                                     if (value == null || value.isEmpty) {
@@ -1378,8 +1401,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -1387,35 +1410,36 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -1429,7 +1453,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Data Found"),
                                                             );
@@ -1444,7 +1468,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                               querySnapshot.docs.forEach((doc) {
                                                                 Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
                                                                 OccupationModel model=OccupationModel.fromMap(data, doc.reference.id);
-                                                                if ("${model.code}".contains(pattern))
+                                                                if (model.code.contains(pattern))
                                                                   search.add(model);
                                                               });
                                                             });
@@ -1453,71 +1477,70 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                                           },
                                                           itemBuilder: (context, OccupationModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
-                                                              title: Text("${suggestion.name}"),
+                                                              leading: const Icon(Icons.people),
+                                                              title: Text(suggestion.name),
                                                               subtitle: Text(suggestion.code),
                                                             );
                                                           },
                                                           onSuggestionSelected: (OccupationModel suggestion) {
-                                                            _addResController.text="${suggestion.name}";
+                                                            _addResController.text=suggestion.name;
                                                             additionalResponsibilityCode=suggestion.code;
                                                             Navigator.pop(context);
 
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('additional_responsibility').snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('additional_responsibility').snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Data Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      additionalResponsibilityCode=data['code'];
+                                                                      _addResController.text="${data['name']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Data Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        additionalResponsibilityCode=data['code'];
-                                                                        _addResController.text="${data['name']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -1529,23 +1552,23 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -1761,7 +1784,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
 
                               ],
                             ),*/
-                            SizedBox(height: 30,),
+                            const SizedBox(height: 30,),
 
                             Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -1778,14 +1801,14 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                         referer = value!;
                                       });
                                     },
-                                    title: Text("Refferer"),
+                                    title: const Text("Referer"),
                                     controlAffinity: ListTileControlAffinity.leading,
                                   ),
 
 
                                 ]
                             ),
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
                             InkWell(
                               onTap: ()async{
                                 if (_formKey.currentState!.validate()){
@@ -1794,7 +1817,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                                   await FirebaseFirestore.instance.collection('invited_users').doc(model.id).update({
                                     "name":_nameController.text,
                                     "email":_emailController.text,
-                                    "mobile":_mobileController.text,
+                                    "mobile": '$phoneCode${_mobileController.text}',
                                     "gender":dropdownValue,
                                     "referer":referer,
                                     "mainGroupCode":mainGroupCode,
@@ -1863,8 +1886,8 @@ class _InvitedUserListState extends State<InvitedUserList> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -1883,7 +1906,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: primaryColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
@@ -1895,16 +1918,16 @@ class _InvitedUserListState extends State<InvitedUserList> {
                           Align(
                             alignment: Alignment.center,
                             child: Container(
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
                               child: Text("SUB GROUPS",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                             ),
                           ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Container(
-                              padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                              padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                               child: InkWell(
-                                child: CircleAvatar(
+                                child: const CircleAvatar(
                                   radius: 20,
                                   backgroundColor: Colors.white,
                                   child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -1920,19 +1943,19 @@ class _InvitedUserListState extends State<InvitedUserList> {
                       child: ListView(
                         children: [
                           ListTile(
-                            leading: Icon(Icons.people),
+                            leading: const Icon(Icons.people),
                             title: Text(model.subGroup1),
                           ),
                           ListTile(
-                            leading: Icon(Icons.people),
+                            leading: const Icon(Icons.people),
                             title: Text(model.subGroup2),
                           ),
                           ListTile(
-                            leading: Icon(Icons.people),
+                            leading: const Icon(Icons.people),
                             title: Text(model.subGroup3),
                           ),
                           ListTile(
-                            leading: Icon(Icons.people),
+                            leading: const Icon(Icons.people),
                             title: Text(model.subGroup4),
                           )
                         ],
@@ -1953,10 +1976,10 @@ class _InvitedUserListState extends State<InvitedUserList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(defaultPadding),
+      decoration: const BoxDecoration(
         color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: SizedBox(
           height: MediaQuery.of(context).size.height*0.8,
@@ -1965,22 +1988,22 @@ class _InvitedUserListState extends State<InvitedUserList> {
             stream: FirebaseFirestore.instance.collection('invited_users').orderBy('createdAt',descending: true).snapshots(),
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasError) {
-                return Text('Something went wrong');
+                return const Text('Something went wrong');
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container(
-                  margin: EdgeInsets.all(30),
+                  margin: const EdgeInsets.all(30),
                   alignment: Alignment.center,
-                  child: CircularProgressIndicator(),
+                  child: const CircularProgressIndicator(),
                 );
               }
               if (snapshot.data!.size==0){
                 return Container(
                   width: double.infinity,
-                  margin: EdgeInsets.all(20),
-                  padding: EdgeInsets.all(80),
+                  margin: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(80),
                   alignment: Alignment.center,
-                  child: Text("No user found"),
+                  child: const Text("No user found"),
                 );
               }
               print("size ${snapshot.data!.size}");
@@ -2055,7 +2078,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                 onTap: (){
                   _showSubGroupsDialog(model);
                 },
-                child: Text("View",),
+                child: const Text("View",),
               )
           ),
           DataCell(Text(model.referer.toString())),
@@ -2066,7 +2089,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                   onPressed: (){
                     _showEditDialog(model);
                   },
-                  icon: Icon(Icons.edit,color: primaryColor,),
+                  icon: const Icon(Icons.edit,color: primaryColor,),
                 ),
                 IconButton(
                   onPressed: ()async{
@@ -2081,7 +2104,7 @@ class _InvitedUserListState extends State<InvitedUserList> {
                       );
                     });
                   },
-                  icon: Icon(Icons.delete_forever,color: primaryColor,),
+                  icon: const Icon(Icons.delete_forever,color: primaryColor,),
                 ),
               ],
             ),

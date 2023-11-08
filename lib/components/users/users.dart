@@ -24,6 +24,7 @@ import '../../model/occupation_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/header.dart';
 import '../../utils/responsive.dart';
+import '../../widgets/sub_group_dialogs.dart';
 class Users extends StatefulWidget {
 
   GlobalKey<ScaffoldState> _scaffoldKey;
@@ -499,8 +500,28 @@ class _UsersState extends State<Users> {
                                                             );
                                                           }
                                                           if (snapshot.data!.size==0){
-                                                            return const Center(
-                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(height: 20,),
+                                                                    Text("No Sub Group Added",style: TextStyle(color: Colors.black)),
+                                                                    SizedBox(height: 10,),
+                                                                    ElevatedButton.icon(
+                                                                      style: TextButton.styleFrom(
+                                                                        padding: EdgeInsets.symmetric(
+                                                                          horizontal: defaultPadding * 1.5,
+                                                                          vertical:
+                                                                          defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed: ()async {
+                                                                        SubGroupDialogs.showAdd1Dialog(context);
+                                                                      },
+                                                                      icon: const Icon(Icons.add),
+                                                                      label: Text("Add Sub Group 1"),
+                                                                    ),
+                                                                  ],
+                                                                )
                                                             );
 
                                                           }
@@ -705,8 +726,28 @@ class _UsersState extends State<Users> {
                                                             );
                                                           }
                                                           if (snapshot.data!.size==0){
-                                                            return const Center(
-                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(height: 20,),
+                                                                    Text("No Sub Group Added",style: TextStyle(color: Colors.black)),
+                                                                    SizedBox(height: 10,),
+                                                                    ElevatedButton.icon(
+                                                                      style: TextButton.styleFrom(
+                                                                        padding: EdgeInsets.symmetric(
+                                                                          horizontal: defaultPadding * 1.5,
+                                                                          vertical:
+                                                                          defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed: ()async {
+                                                                        SubGroupDialogs.showAdd2Dialog(context,2);
+                                                                      },
+                                                                      icon: const Icon(Icons.add),
+                                                                      label: Text("Add Sub Group 2"),
+                                                                    ),
+                                                                  ],
+                                                                )
                                                             );
 
                                                           }
@@ -910,8 +951,28 @@ class _UsersState extends State<Users> {
                                                             );
                                                           }
                                                           if (snapshot.data!.size==0){
-                                                            return const Center(
-                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(height: 20,),
+                                                                    Text("No Sub Group Added",style: TextStyle(color: Colors.black)),
+                                                                    SizedBox(height: 10,),
+                                                                    ElevatedButton.icon(
+                                                                      style: TextButton.styleFrom(
+                                                                        padding: EdgeInsets.symmetric(
+                                                                          horizontal: defaultPadding * 1.5,
+                                                                          vertical:
+                                                                          defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed: ()async {
+                                                                        SubGroupDialogs.showAdd3Dialog(context,3);
+                                                                      },
+                                                                      icon: const Icon(Icons.add),
+                                                                      label: Text("Add Sub Group 3"),
+                                                                    ),
+                                                                  ],
+                                                                )
                                                             );
 
                                                           }
@@ -1116,8 +1177,28 @@ class _UsersState extends State<Users> {
                                                             );
                                                           }
                                                           if (snapshot.data!.size==0){
-                                                            return const Center(
-                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            return Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(height: 20,),
+                                                                    Text("No Sub Group Added",style: TextStyle(color: Colors.black)),
+                                                                    SizedBox(height: 10,),
+                                                                    ElevatedButton.icon(
+                                                                      style: TextButton.styleFrom(
+                                                                        padding: EdgeInsets.symmetric(
+                                                                          horizontal: defaultPadding * 1.5,
+                                                                          vertical:
+                                                                          defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed: ()async {
+                                                                        SubGroupDialogs.showAdd4Dialog(context,4);
+                                                                      },
+                                                                      icon: const Icon(Icons.add),
+                                                                      label: Text("Add Sub Group 4"),
+                                                                    ),
+                                                                  ],
+                                                                )
                                                             );
 
                                                           }

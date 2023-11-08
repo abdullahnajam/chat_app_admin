@@ -50,8 +50,8 @@ class _SubGroup3ListState extends State<SubGroup3List> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -72,7 +72,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: primaryColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(10),
@@ -84,16 +84,16 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                             Align(
                               alignment: Alignment.center,
                               child: Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: Text("EDIT SUBGROUP 3",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
-                                padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                                padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                                 child: InkWell(
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -107,7 +107,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                       ),
                       Expanded(
                         child: ListView(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
@@ -118,7 +118,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
 
                                     if (value == null || value.isEmpty) {
@@ -135,8 +135,8 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -144,35 +144,36 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -186,7 +187,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -210,7 +211,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
+                                                              leading: const Icon(Icons.people),
                                                               title: Text("${suggestion.name}"),
                                                               subtitle: Text(suggestion.code),
                                                             );
@@ -222,57 +223,56 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('main_group').snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: const NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      _mainGroupCodeController.text="${data['code']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Main Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        _mainGroupCodeController.text="${data['code']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -284,23 +284,23 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -312,7 +312,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +322,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -338,8 +338,8 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -347,35 +347,36 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -389,7 +390,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -413,7 +414,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
+                                                              leading: const Icon(Icons.people),
                                                               title: Text("${suggestion.name}"),
                                                               subtitle: Text(suggestion.code),
                                                             );
@@ -425,57 +426,56 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group1').where("mainGroupCode",isEqualTo: _mainGroupCodeController.text).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: const NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      _subGroup1CodeController.text="${data['code']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        _subGroup1CodeController.text="${data['code']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -487,23 +487,23 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -515,7 +515,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +525,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -541,8 +541,8 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                           return StatefulBuilder(
                                             builder: (context,setState){
                                               return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: const BorderRadius.all(
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0),
                                                   ),
                                                 ),
@@ -550,35 +550,36 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                 insetAnimationCurve: Curves.fastOutSlowIn,
                                                 elevation: 2,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding: const EdgeInsets.all(10),
                                                   width: MediaQuery.of(context).size.width*0.3,
-                                                  child: Column(
+                                                  height: MediaQuery.of(context).size.height*0.7,
+                                                  child: ListView(
                                                     children: [
                                                       Container(
                                                         height: 50,
-                                                        margin: EdgeInsets.all(10),
+                                                        margin: const EdgeInsets.all(10),
                                                         child: TypeAheadField(
                                                           textFieldConfiguration: TextFieldConfiguration(
 
 
                                                             decoration: InputDecoration(
-                                                              contentPadding: EdgeInsets.all(15),
+                                                              contentPadding: const EdgeInsets.all(15),
                                                               focusedBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                 ),
                                                               ),
                                                               enabledBorder: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors.transparent,
                                                                     width: 0.5
                                                                 ),
                                                               ),
                                                               border: OutlineInputBorder(
                                                                 borderRadius: BorderRadius.circular(7.0),
-                                                                borderSide: BorderSide(
+                                                                borderSide: const BorderSide(
                                                                   color: Colors.transparent,
                                                                   width: 0.5,
                                                                 ),
@@ -592,7 +593,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                             ),
                                                           ),
                                                           noItemsFoundBuilder: (context) {
-                                                            return ListTile(
+                                                            return const ListTile(
                                                               leading: Icon(Icons.error),
                                                               title: Text("No Group Found"),
                                                             );
@@ -616,7 +617,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                           itemBuilder: (context, MainGroupModel suggestion) {
                                                             return ListTile(
-                                                              leading: Icon(Icons.people),
+                                                              leading: const Icon(Icons.people),
                                                               title: Text("${suggestion.name}"),
                                                               subtitle: Text(suggestion.code),
                                                             );
@@ -628,57 +629,56 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                                           },
                                                         ),
                                                       ),
-                                                      Expanded(
-                                                        child: StreamBuilder<QuerySnapshot>(
-                                                          stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text).snapshots(),
-                                                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                                            if (snapshot.hasError) {
-                                                              return Center(
-                                                                child: Column(
-                                                                  children: [
-                                                                    Image.asset("assets/images/wrong.png",width: 150,height: 150,),
-                                                                    Text("Something Went Wrong",style: TextStyle(color: Colors.black))
+                                                      StreamBuilder<QuerySnapshot>(
+                                                        stream: FirebaseFirestore.instance.collection('sub_group2').where("subGroup1Code",isEqualTo: _subGroup1CodeController.text).snapshots(),
+                                                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                                          if (snapshot.hasError) {
+                                                            return Center(
+                                                              child: Column(
+                                                                children: [
+                                                                  Image.asset("assets/images/wrong.png",width: 150,height: 150,),
+                                                                  const Text("Something Went Wrong",style: TextStyle(color: Colors.black))
 
-                                                                  ],
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+
+                                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                                            return const Center(
+                                                              child: CircularProgressIndicator(),
+                                                            );
+                                                          }
+                                                          if (snapshot.data!.size==0){
+                                                            return const Center(
+                                                                child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
+                                                            );
+
+                                                          }
+
+                                                          return ListView(
+                                                            shrinkWrap: true,
+                                                            physics: const NeverScrollableScrollPhysics(),
+                                                            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                                                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                                                              return Padding(
+                                                                padding: const EdgeInsets.only(top: 15.0),
+                                                                child: ListTile(
+                                                                  onTap: (){
+                                                                    setState(() {
+                                                                      _subGroup2CodeController.text="${data['code']}";
+                                                                    });
+                                                                    Navigator.pop(context);
+                                                                  },
+                                                                  leading: const Icon(Icons.people),
+                                                                  title: Text("${data['name']}",style: const TextStyle(color: Colors.black),),
+                                                                  subtitle: Text("${data['code']}",style: const TextStyle(color: Colors.black),),
                                                                 ),
                                                               );
-                                                            }
-
-                                                            if (snapshot.connectionState == ConnectionState.waiting) {
-                                                              return Center(
-                                                                child: CircularProgressIndicator(),
-                                                              );
-                                                            }
-                                                            if (snapshot.data!.size==0){
-                                                              return Center(
-                                                                  child: Text("No Sub Group Added",style: TextStyle(color: Colors.black))
-                                                              );
-
-                                                            }
-
-                                                            return new ListView(
-                                                              shrinkWrap: true,
-                                                              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                                                                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                                                                return new Padding(
-                                                                  padding: const EdgeInsets.only(top: 15.0),
-                                                                  child: ListTile(
-                                                                    onTap: (){
-                                                                      setState(() {
-                                                                        _subGroup2CodeController.text="${data['code']}";
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    },
-                                                                    leading: Icon(Icons.people),
-                                                                    title: Text("${data['name']}",style: TextStyle(color: Colors.black),),
-                                                                    subtitle: Text("${data['code']}",style: TextStyle(color: Colors.black),),
-                                                                  ),
-                                                                );
-                                                              }).toList(),
-                                                            );
-                                                          },
-                                                        ),
+                                                            }).toList(),
+                                                          );
+                                                        },
                                                       ),
                                                     ],
                                                   ),
@@ -690,23 +690,23 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                     );
                                   },
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -718,7 +718,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
 
                               ],
                             ),
-                            SizedBox(height: 20,),
+                            const SizedBox(height: 20,),
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -728,7 +728,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                   style: Theme.of(context).textTheme.bodyText1!.apply(color: Colors.black),
                                 ),
                                 TextFormField(
-                                  style: TextStyle(color: Colors.black),
+                                  style: const TextStyle(color: Colors.black),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter some text';
@@ -737,23 +737,23 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                   },
                                   controller: _nameController,
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(15),
+                                    contentPadding: const EdgeInsets.all(15),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                           color: primaryColor,
                                           width: 0.5
                                       ),
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(7.0),
-                                      borderSide: BorderSide(
+                                      borderSide: const BorderSide(
                                         color: primaryColor,
                                         width: 0.5,
                                       ),
@@ -766,7 +766,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                               ],
                             ),
 
-                            SizedBox(height: 10,),
+                            const SizedBox(height: 10,),
 
 
                             InkWell(
@@ -859,8 +859,8 @@ class _SubGroup3ListState extends State<SubGroup3List> {
           builder: (context,setState){
 
             return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
               ),
@@ -879,7 +879,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: primaryColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
@@ -891,16 +891,16 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                           Align(
                             alignment: Alignment.center,
                             child: Container(
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
                               child: Text("SUB GROUPS 4",textAlign: TextAlign.center,style: Theme.of(context).textTheme.headline5!.apply(color: Colors.white),),
                             ),
                           ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Container(
-                              padding: EdgeInsets.only(top: 5,right: 10,bottom: 5),
+                              padding: const EdgeInsets.only(top: 5,right: 10,bottom: 5),
                               child: InkWell(
-                                child: CircleAvatar(
+                                child: const CircleAvatar(
                                   radius: 20,
                                   backgroundColor: Colors.white,
                                   child: Icon(Icons.close,color: primaryColor,size: 20,),
@@ -918,29 +918,29 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                             .where("subGroup3Code",isEqualTo:model.code).snapshots(),
                         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                           if (snapshot.hasError) {
-                            return Text('Something went wrong');
+                            return const Text('Something went wrong');
                           }
 
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(
+                            return const Center(
                               child: CircularProgressIndicator(),
                             );
                           }
 
                           if (snapshot.data!.size==0) {
-                            return Center(
+                            return const Center(
                               child: Text("No Groups"),
                             );
                           }
 
                           return ListView(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             children: snapshot.data!.docs.map((DocumentSnapshot document) {
                               Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
                               MainGroupModel model=MainGroupModel.fromMap(data,document.reference.id);
                               return ListTile(
-                                leading: Icon(Icons.people),
+                                leading: const Icon(Icons.people),
                                 title: Text(model.name),
                                 subtitle: Text(model.code),
                               );
@@ -966,10 +966,10 @@ class _SubGroup3ListState extends State<SubGroup3List> {
     return Container(
         height: MediaQuery.of(context).size.height*0.8,
         width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.all(defaultPadding),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(defaultPadding),
+      decoration: const BoxDecoration(
         color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Column(
         children: [
@@ -1151,7 +1151,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                 future: FirebaseApi.getAllSubgroup3Filtered(filter,query),
                 builder: (context, AsyncSnapshot<List<SubGroup3Model>> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                         child: CircularProgressIndicator()
                     );
                   }
@@ -1210,7 +1210,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                       future: FirebaseApi.getMainGroupModel(snapshot.data![index].mainGroupCode),
                                       builder: (context, AsyncSnapshot<MainGroupModel?> usersnap) {
                                         if (usersnap.connectionState == ConnectionState.waiting) {
-                                          return Center(
+                                          return const Center(
                                             child: CupertinoActivityIndicator(),
                                           );
                                         }
@@ -1241,7 +1241,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                       future: FirebaseApi.getSubGroup1Model(snapshot.data![index].subGroup1Code),
                                       builder: (context, AsyncSnapshot<SubGroup1Model?> usersnap) {
                                         if (usersnap.connectionState == ConnectionState.waiting) {
-                                          return Center(
+                                          return const Center(
                                             child: CupertinoActivityIndicator(),
                                           );
                                         }
@@ -1272,7 +1272,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                       future: FirebaseApi.getSubGroup2Model(snapshot.data![index].subGroup2Code),
                                       builder: (context, AsyncSnapshot<SubGroup2Model?> usersnap) {
                                         if (usersnap.connectionState == ConnectionState.waiting) {
-                                          return Center(
+                                          return const Center(
                                             child: CupertinoActivityIndicator(),
                                           );
                                         }
@@ -1306,7 +1306,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                         onTap: (){
                                           _showSubGroupsDialog(snapshot.data![index]);
                                         },
-                                        child: Text("View",),
+                                        child: const Text("View",),
                                       )
                                   ),
                                   DataCell(
@@ -1316,7 +1316,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                           onPressed: (){
                                             _showEditDialog(snapshot.data![index]);
                                           },
-                                          icon: Icon(Icons.edit,color: primaryColor,),
+                                          icon: const Icon(Icons.edit,color: primaryColor,),
                                         ),
                                         IconButton(
                                           onPressed: ()async{
@@ -1331,7 +1331,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                                               );
                                             });
                                           },
-                                          icon: Icon(Icons.delete_forever,color: primaryColor,),
+                                          icon: const Icon(Icons.delete_forever,color: primaryColor,),
                                         ),
                                       ],
                                     ),
@@ -1367,7 +1367,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                 onTap: (){
                   _showSubGroupsDialog(model);
                 },
-                child: Text("View",),
+                child: const Text("View",),
               )
           ),
           DataCell(
@@ -1377,7 +1377,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                   onPressed: (){
                     _showEditDialog(model);
                   },
-                  icon: Icon(Icons.edit,color: primaryColor,),
+                  icon: const Icon(Icons.edit,color: primaryColor,),
                 ),
                 IconButton(
                   onPressed: ()async{
@@ -1392,7 +1392,7 @@ class _SubGroup3ListState extends State<SubGroup3List> {
                       );
                     });
                   },
-                  icon: Icon(Icons.delete_forever,color: primaryColor,),
+                  icon: const Icon(Icons.delete_forever,color: primaryColor,),
                 ),
               ],
             ),
